@@ -24,6 +24,9 @@ import ToggleSwitch from 'toggle-switch-react-native'
 
 const COLORS = ['red', 'green', 'blue', 'black', 'yellow', 'pink', 'purple'];
 
+
+import moment from 'moment';
+
 const Popup = forwardRef((props, ref) => {
   const { visible, onOk, onCancel, id = 0, from = null, to = null } = props;
 
@@ -38,18 +41,29 @@ const Popup = forwardRef((props, ref) => {
   const [typeEvent, setTypeEvent] = useState('from');
 
 
+  /// DATE TIME START
+  const [dateFrom, setDateFrom] = useState(null);
+  const [timeFrom, setTimeFrom] = useState(null);
+
+
   const [isVisible, setVisible] = useState(false);
 
 
   useImperativeHandle(ref, () => {
     return {
-      onShowModal: () => onShow()
+      onShowModal: (startDate, endDate) => onShow(startDate, endDate)
     }
   })
 
-  const onShow = () => {
+  const onShow = (startDate, endDate) => {
+    console.log("START", startDate)
+    console.log("END", endDate)
+
+    const startTime = moment(startDate).format("HH:mm")
+
     setVisible(true)
-  }
+    setTimeFrom(startTime)
+    }
 
 
   const onShowDateFrom = () => {
@@ -110,21 +124,21 @@ const Popup = forwardRef((props, ref) => {
   };
 
 
-  useEffect(() => {
-    setFromDate(from);
-    setToDate(to);
-    console.log('from', from);
-    console.log('to', to);
-    console.log('fromDate', fromDate);
-    console.log('toDate', toDate);
-  }, [from, to]);
+  // useEffect(() => {
+  //   setFromDate(from);
+  //   setToDate(to);
+  //   console.log('from', from);
+  //   console.log('to', to);
+  //   console.log('fromDate', fromDate);
+  //   console.log('toDate', toDate);
+  // }, [from, to]);
 
 
   return (
     <Modal isVisible={isVisible} style={{ alignItems: 'center', flex: 1, margin: 0 }}>
       <View style={{ backgroundColor: '#fff', borderRadius: 10, width: '80%' }}>
         <View style={{ flexDirection: 'row', marginTop: 20 }}>
-          <TouchableOpacity style={{ flex: 1, marginLeft: 20, height: 40, width: 40 }} onPress={() => setVisible(false)}>
+          <TouchableOpacity style={{ flex: 1, marginLeft: 20, height: 40, width: 40 }} onPress={() => {setVisible(false), onCancel()}}>
             <Image source={require('./src/images/close.png')} style={{ height: 20, width: 20 }} />
           </TouchableOpacity>
           <TouchableOpacity style={{ backgroundColor: '#0080FF', paddingLeft: 12, paddingRight: 12, paddingBottom: 8, paddingTop: 8, marginRight: 20, borderRadius: 5 }}>
@@ -167,19 +181,19 @@ const Popup = forwardRef((props, ref) => {
                     <Text style={styles.tvTime}>Th3, 14 thg 4 2020</Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={onShowTimeFrom}>
-                    <Text style={styles.tvTime}>16:30</Text>
+                    <Text style={styles.tvTime}>{timeFrom}</Text>
                   </TouchableOpacity>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }} onPress={() => setShowDate(true)}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
                   <View style={{ width: 40 }}>
                     {/* <Image source={require('./src/images/clock.png')} style={{ height: 20, width: 20 }} /> */}
                   </View>
-                  <View style={{ marginLeft: 20, flex: 1 }}>
+                  <TouchableOpacity style={{ marginLeft: 20, flex: 1 }} onPress={() => onShowDateFrom(true)}>
                     <Text style={styles.tvTime}>Th3, 14 thg 4 2020</Text>
-                  </View>
-                  <View>
+                  </TouchableOpacity>
+                  <TouchableOpacity  onPress={() => onShowTimeFrom(true)}>
                     <Text style={styles.tvTime}>18:30</Text>
-                  </View>
+                  </TouchableOpacity>
                 </View>
 
                 <TouchableOpacity style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center' }}>
@@ -192,7 +206,6 @@ const Popup = forwardRef((props, ref) => {
                 </TouchableOpacity>
               </View>
             </View>
-      
             <View style={{ borderBottomWidth: 1, borderColor: '#ccc', paddingTop: 10, paddingBottom: 10 }}>
               <View style={{ marginLeft: 20, marginRight: 20 }}>
                 <TouchableOpacity style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center' }}>

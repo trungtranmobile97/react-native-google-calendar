@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -84,8 +84,8 @@ const Calendar = () => {
     // setVisible(true);
 
     // setVisible(true)
-    
-    refModal.current.onShowModal();
+
+    refModal.current.onShowModal(utils.getDate(WEEK[dateSelectedIndex], start), utils.getDate(WEEK[dateSelectedIndex], move));
 
   };
 
