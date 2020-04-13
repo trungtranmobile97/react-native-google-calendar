@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,37 @@ import {
 import utils from './utils';
 import Popup from './Popup';
 
+const DATES = [
+  {
+    day: 'T2',
+    date: 20,
+  },
+  {
+    day: 'T3',
+    date: 21,
+  },
+  {
+    day: 'T4',
+    date: 22,
+  },
+  {
+    day: 'T5',
+    date: 23,
+  },
+  {
+    day: 'T6',
+    date: 24,
+  },
+  {
+    day: 'T7',
+    date: 25,
+  },
+  {
+    day: 'CN',
+    date: 26,
+  },
+];
+
 const Calendar = () => {
   let id = 1;
   const [canScroll, setCanScroll] = useState(true);
@@ -21,6 +52,7 @@ const Calendar = () => {
   const [visible, setVisible] = useState(false);
   const [createEventHeight, setCreateEventHeight] = useState(0);
   const [sumDate, setSumDate] = useState(7);
+  const [dateWidth, setDateWidth] = useState(0);
 
   const restartState = () => {
     setCanScroll(true);
@@ -29,6 +61,11 @@ const Calendar = () => {
     setVisible(false);
     setCreateEventHeight(0);
   };
+
+  useEffect(() => {
+    const width = (utils.width - utils.HOUR_TITLE_WIDTH) / sumDate;
+    setDateWidth(width);
+  }, [sumDate]);
 
   const onMove = evt => {
     if (canScroll) return;
@@ -79,15 +116,31 @@ const Calendar = () => {
   };
 
   const renderDate = () => {
-    const result = [];
-    for (let i = 0; i < sumDate; i++) {
-      result.push(<View key={i} style={styles.date} />);
-    }
-    return result;
+    return DATES.map(date => {
+      return (
+        <View
+          key={date.date}
+          style={{
+            flexDirection: 'row',
+            width: dateWidth,
+          }}>
+          <View style={styles.lineColumn} />
+          <View style={styles.date}>
+            <Text>{date.day}</Text>
+            <Text>{date.date}</Text>
+          </View>
+        </View>
+      );
+    });
   };
 
   const renderWeek = () => {
-    return <View style={styles.ctDate}>{renderDate()}</View>;
+    return (
+      <View style={styles.ctDate}>
+        <View style={styles.title} />
+        {renderDate()}
+      </View>
+    );
   };
 
   const renderEvents = events => {
@@ -133,7 +186,7 @@ const Calendar = () => {
               y: evt.nativeEvent.locationY,
             };
             setCanScroll(false);
-            setCreateEventHeight(10);
+            setCreateEventHeight(5);
             setStart(start);
           }}
         />
@@ -144,6 +197,7 @@ const Calendar = () => {
               height: createEventHeight,
               left: 0,
               top: start ? start.y : 0,
+              width: dateWidth,
             },
           ]}
         />
@@ -175,13 +229,7 @@ const Calendar = () => {
         to={move ? utils.getHour(move.x, move.y) : null}
       />
       {renderWeek()}
-      <View
-        style={{
-          marginTop: utils.MARGIN_TOP,
-          backgroundColor: 'red',
-        }}>
-        {renderCalendar()}
-      </View>
+      <View style={{}}>{renderCalendar()}</View>
     </View>
   );
   /******* END MAIN  ***************************************/
@@ -204,7 +252,12 @@ const styles = StyleSheet.create({
   lineRow: {
     width: utils.width - utils.HOUR_TITLE_WIDTH,
     backgroundColor: 'grey',
-    height: 1,
+    height: 0.5,
+  },
+  lineColumn: {
+    width: 0.5,
+    height: utils.height - utils.DATE_HEIGHT,
+    backgroundColor: 'black',
   },
   txtHour: {
     top: -8,
@@ -214,6 +267,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     borderTopWidth: 1,
+    marginBottom: utils.DATE_HEIGHT + 30,
   },
   hide: {
     width: 0,
@@ -221,8 +275,6 @@ const styles = StyleSheet.create({
   },
   createEvent: {
     position: 'absolute',
-    width: utils.DATE_WIDTH,
-    height: 10,
     backgroundColor: 'green',
   },
   event: {
@@ -242,12 +294,16 @@ const styles = StyleSheet.create({
   ctDate: {
     height: utils.DATE_HEIGHT,
     marginTop: utils.MARGIN_TOP,
-    backgroundColor: 'red',
     flexDirection: 'row',
+    borderTopWidth: 1,
   },
   date: {
     flex: 1,
-    backgroundColor: 'green',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    width: utils.HOUR_TITLE_WIDTH,
   },
 });
 
