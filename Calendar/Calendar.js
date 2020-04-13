@@ -53,6 +53,13 @@ const Calendar = () => {
   const [createEventHeight, setCreateEventHeight] = useState(0);
   const [sumDate, setSumDate] = useState(7);
   const [dateWidth, setDateWidth] = useState(0);
+  const [dateIndex, setDateIndex] = useState(-1);
+
+  const MONTH_DATES = utils.getMonthDates(2020, 4);
+  const INDEX_DATE_NOW = utils.indexOfDate(new Date(), MONTH_DATES);
+  const MON_INDEX = utils.getMonIndex(INDEX_DATE_NOW, MONTH_DATES);
+  const PAGE = 0;
+  const WEEK = MONTH_DATES.slice(MON_INDEX, MON_INDEX + 8);
 
   const restartState = () => {
     setCanScroll(true);
@@ -66,6 +73,19 @@ const Calendar = () => {
     const width = (utils.width - utils.HOUR_TITLE_WIDTH) / sumDate;
     setDateWidth(width);
   }, [sumDate]);
+
+  const onLongPress = evt => {
+    const start = {
+      x: evt.nativeEvent.locationX,
+      y: evt.nativeEvent.locationY,
+    };
+    const dateIndex = utils.getDateIndex(start.x, dateWidth);
+
+    setDateIndex(dateIndex);
+    setCanScroll(false);
+    setCreateEventHeight(5);
+    setStart(start);
+  };
 
   const onMove = evt => {
     if (canScroll) return;
@@ -116,18 +136,18 @@ const Calendar = () => {
   };
 
   const renderDate = () => {
-    return DATES.map(date => {
+    return WEEK.map(date => {
       return (
         <View
-          key={date.date}
+          key={date.getDay()}
           style={{
             flexDirection: 'row',
             width: dateWidth,
           }}>
           <View style={styles.lineColumn} />
           <View style={styles.date}>
-            <Text>{date.day}</Text>
-            <Text>{date.date}</Text>
+            <Text>{utils.getDay(date)}</Text>
+            <Text>{date.getDate()}</Text>
           </View>
         </View>
       );
@@ -158,7 +178,7 @@ const Calendar = () => {
             {
               backgroundColor: event.color,
               top: start.y,
-              width: utils.DATE_WIDTH,
+              width: dateWidth,
               height: end.y - start.y,
             },
           ]}>
@@ -178,24 +198,13 @@ const Calendar = () => {
         //   onResponderGrant={onStartMove}
         onResponderMove={onMove}
         onResponderRelease={onRelease}>
-        <TouchableOpacity
-          style={styles.touch}
-          onLongPress={evt => {
-            const start = {
-              x: evt.nativeEvent.locationX,
-              y: evt.nativeEvent.locationY,
-            };
-            setCanScroll(false);
-            setCreateEventHeight(5);
-            setStart(start);
-          }}
-        />
+        <TouchableOpacity style={styles.touch} onLongPress={onLongPress} />
         <View
           style={[
             styles.createEvent,
             {
               height: createEventHeight,
-              left: 0,
+              left: dateIndex * dateWidth,
               top: start ? start.y : 0,
               width: dateWidth,
             },
