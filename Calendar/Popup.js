@@ -118,7 +118,7 @@ const Popup = forwardRef((props, ref) => {
   }, [from, to]);
 
   return (
-    <Modal visible={visible} transparent={true}>
+    <Modal visible={isVisible} transparent={true}>
       <View style={{flex: 1, backgroundColor: 'black', opacity: 0.5}} />
       <View
         style={{
