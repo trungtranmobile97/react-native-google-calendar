@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,37 @@ import {
 import utils from './utils';
 import Popup from './Popup';
 
+const DATES = [
+  {
+    day: 'T2',
+    date: 20,
+  },
+  {
+    day: 'T3',
+    date: 21,
+  },
+  {
+    day: 'T4',
+    date: 22,
+  },
+  {
+    day: 'T5',
+    date: 23,
+  },
+  {
+    day: 'T6',
+    date: 24,
+  },
+  {
+    day: 'T7',
+    date: 25,
+  },
+  {
+    day: 'CN',
+    date: 26,
+  },
+];
+
 const Calendar = () => {
 
   const refModal = useRef();
@@ -23,6 +54,14 @@ const Calendar = () => {
   const [visible, setVisible] = useState(false);
   const [createEventHeight, setCreateEventHeight] = useState(0);
   const [sumDate, setSumDate] = useState(7);
+  const [dateWidth, setDateWidth] = useState(0);
+  const [dateIndex, setDateIndex] = useState(-1);
+
+  const MONTH_DATES = utils.getMonthDates(2020, 4);
+  const INDEX_DATE_NOW = utils.indexOfDate(new Date(), MONTH_DATES);
+  const MON_INDEX = utils.getMonIndex(INDEX_DATE_NOW, MONTH_DATES);
+  const PAGE = 0;
+  const WEEK = MONTH_DATES.slice(MON_INDEX, MON_INDEX + 8);
 
   const restartState = () => {
     setCanScroll(true);
@@ -30,6 +69,24 @@ const Calendar = () => {
     setMove(null);
     setVisible(false);
     setCreateEventHeight(0);
+  };
+
+  useEffect(() => {
+    const width = (utils.width - utils.HOUR_TITLE_WIDTH) / sumDate;
+    setDateWidth(width);
+  }, [sumDate]);
+
+  const onLongPress = evt => {
+    const start = {
+      x: evt.nativeEvent.locationX,
+      y: evt.nativeEvent.locationY,
+    };
+    const dateIndex = utils.getDateIndex(start.x, dateWidth);
+
+    setDateIndex(dateIndex);
+    setCanScroll(false);
+    setCreateEventHeight(5);
+    setStart(start);
   };
 
   const onMove = evt => {
@@ -87,15 +144,31 @@ const Calendar = () => {
   };
 
   const renderDate = () => {
-    const result = [];
-    for (let i = 0; i < sumDate; i++) {
-      result.push(<View key={i} style={styles.date} />);
-    }
-    return result;
+    return WEEK.map(date => {
+      return (
+        <View
+          key={date.getDay()}
+          style={{
+            flexDirection: 'row',
+            width: dateWidth,
+          }}>
+          <View style={styles.lineColumn} />
+          <View style={styles.date}>
+            <Text>{utils.getDay(date)}</Text>
+            <Text>{date.getDate()}</Text>
+          </View>
+        </View>
+      );
+    });
   };
 
   const renderWeek = () => {
-    return <View style={styles.ctDate}>{renderDate()}</View>;
+    return (
+      <View style={styles.ctDate}>
+        <View style={styles.title} />
+        {renderDate()}
+      </View>
+    );
   };
 
   const renderEvents = events => {
@@ -113,7 +186,7 @@ const Calendar = () => {
             {
               backgroundColor: event.color,
               top: start.y,
-              width: utils.DATE_WIDTH,
+              width: dateWidth,
               height: end.y - start.y,
             },
           ]}>
@@ -133,25 +206,15 @@ const Calendar = () => {
         //   onResponderGrant={onStartMove}
         onResponderMove={onMove}
         onResponderRelease={onRelease}>
-        <TouchableOpacity
-          style={styles.touch}
-          onLongPress={evt => {
-            const start = {
-              x: evt.nativeEvent.locationX,
-              y: evt.nativeEvent.locationY,
-            };
-            setCanScroll(false);
-            setCreateEventHeight(10);
-            setStart(start);
-          }}
-        />
+        <TouchableOpacity style={styles.touch} onLongPress={onLongPress} />
         <View
           style={[
             styles.createEvent,
             {
               height: createEventHeight,
-              left: 0,
+              left: dateIndex * dateWidth,
               top: start ? start.y : 0,
+              width: dateWidth,
             },
           ]}
         />
@@ -184,13 +247,7 @@ const Calendar = () => {
         to={move ? utils.getHour(move.x, move.y) : null}
       />
       {renderWeek()}
-      <View
-        style={{
-          // marginTop: utils.MARGIN_TOP,
-          // backgroundColor: 'red',
-        }}>
-        {renderCalendar()}
-      </View>
+      <View style={{}}>{renderCalendar()}</View>
     </View>
   );
   /******* END MAIN  ***************************************/
@@ -213,7 +270,12 @@ const styles = StyleSheet.create({
   lineRow: {
     width: utils.width - utils.HOUR_TITLE_WIDTH,
     backgroundColor: 'grey',
-    height: 1,
+    height: 0.5,
+  },
+  lineColumn: {
+    width: 0.5,
+    height: utils.height - utils.DATE_HEIGHT,
+    backgroundColor: 'black',
   },
   txtHour: {
     top: -8,
@@ -223,6 +285,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     borderTopWidth: 1,
+    marginBottom: utils.DATE_HEIGHT + 30,
   },
   hide: {
     width: 0,
@@ -230,8 +293,6 @@ const styles = StyleSheet.create({
   },
   createEvent: {
     position: 'absolute',
-    width: utils.DATE_WIDTH,
-    height: 10,
     backgroundColor: 'green',
   },
   event: {
@@ -251,12 +312,16 @@ const styles = StyleSheet.create({
   ctDate: {
     height: utils.DATE_HEIGHT,
     marginTop: utils.MARGIN_TOP,
-    backgroundColor: 'red',
     flexDirection: 'row',
+    borderTopWidth: 1,
   },
   date: {
     flex: 1,
-    backgroundColor: 'green',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    width: utils.HOUR_TITLE_WIDTH,
   },
 });
 
