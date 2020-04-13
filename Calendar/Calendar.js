@@ -11,37 +11,13 @@ import {
 
 import utils from './utils';
 import Popup from './Popup';
+import moment from 'moment';
 
-const DATES = [
-  {
-    day: 'T2',
-    date: 20,
-  },
-  {
-    day: 'T3',
-    date: 21,
-  },
-  {
-    day: 'T4',
-    date: 22,
-  },
-  {
-    day: 'T5',
-    date: 23,
-  },
-  {
-    day: 'T6',
-    date: 24,
-  },
-  {
-    day: 'T7',
-    date: 25,
-  },
-  {
-    day: 'CN',
-    date: 26,
-  },
-];
+const MONTH_DATES = utils.getMonthDates(2020, 4);
+const INDEX_DATE_NOW = utils.indexOfDate(new Date(), MONTH_DATES);
+const MON_INDEX = utils.getMonIndex(INDEX_DATE_NOW, MONTH_DATES);
+const PAGE = 0;
+const WEEK = MONTH_DATES.slice(MON_INDEX, MON_INDEX + 8);
 
 const Calendar = () => {
 
@@ -55,13 +31,7 @@ const Calendar = () => {
   const [createEventHeight, setCreateEventHeight] = useState(0);
   const [sumDate, setSumDate] = useState(7);
   const [dateWidth, setDateWidth] = useState(0);
-  const [dateIndex, setDateIndex] = useState(-1);
-
-  const MONTH_DATES = utils.getMonthDates(2020, 4);
-  const INDEX_DATE_NOW = utils.indexOfDate(new Date(), MONTH_DATES);
-  const MON_INDEX = utils.getMonIndex(INDEX_DATE_NOW, MONTH_DATES);
-  const PAGE = 0;
-  const WEEK = MONTH_DATES.slice(MON_INDEX, MON_INDEX + 8);
+  const [dateSelectedIndex, setDateSelectedIndex] = useState(-1);
 
   const restartState = () => {
     setCanScroll(true);
@@ -83,7 +53,7 @@ const Calendar = () => {
     };
     const dateIndex = utils.getDateIndex(start.x, dateWidth);
 
-    setDateIndex(dateIndex);
+    setDateSelectedIndex(dateIndex);
     setCanScroll(false);
     setCreateEventHeight(5);
     setStart(start);
@@ -144,10 +114,11 @@ const Calendar = () => {
   };
 
   const renderDate = () => {
+    let id = 0;
     return WEEK.map(date => {
       return (
         <View
-          key={date.getDay()}
+          key={id++}
           style={{
             flexDirection: 'row',
             width: dateWidth,
@@ -165,7 +136,10 @@ const Calendar = () => {
   const renderWeek = () => {
     return (
       <View style={styles.ctDate}>
-        <View style={styles.title} />
+        <View style={styles.title}>
+          <Text>{moment(MONTH_DATES[0]).format('MMM')}</Text>
+          <Text>{moment(MONTH_DATES[0]).format('YYYY')}</Text>
+        </View>
         {renderDate()}
       </View>
     );
@@ -173,8 +147,8 @@ const Calendar = () => {
 
   const renderEvents = events => {
     const eventsView = events.map(event => {
-      const start = utils.getPosition(event.start);
-      const end = utils.getPosition(event.end);
+      const start = utils.getPosition(event.start, WEEK, dateWidth);
+      const end = utils.getPosition(event.end, WEEK, dateWidth);
       return (
         <TouchableOpacity
           key={event.id}
@@ -186,6 +160,7 @@ const Calendar = () => {
             {
               backgroundColor: event.color,
               top: start.y,
+              left: start.x,
               width: dateWidth,
               height: end.y - start.y,
             },
@@ -203,7 +178,6 @@ const Calendar = () => {
         style={styles.ctTable}
         onStartShouldSetResponder={evt => true}
         onMoveShouldSetResponder={evt => true}
-        //   onResponderGrant={onStartMove}
         onResponderMove={onMove}
         onResponderRelease={onRelease}>
         <TouchableOpacity style={styles.touch} onLongPress={onLongPress} />
@@ -212,7 +186,7 @@ const Calendar = () => {
             styles.createEvent,
             {
               height: createEventHeight,
-              left: dateIndex * dateWidth,
+              left: dateSelectedIndex * dateWidth,
               top: start ? start.y : 0,
               width: dateWidth,
             },
@@ -243,8 +217,10 @@ const Calendar = () => {
         visible={visible}
         onOk={onOk}
         onCancel={onCancel}
-        from={start ? utils.getHour(start.x, start.y) : null}
-        to={move ? utils.getHour(move.x, move.y) : null}
+        // from={start ? utils.getHour(start.x, start.y) : null}
+        // to={move ? utils.getHour(move.x, move.y) : null}
+        from={start ? utils.getDate(WEEK[dateSelectedIndex], start) : null}
+        to={move ? utils.getDate(WEEK[dateSelectedIndex], move) : null}
       />
       {renderWeek()}
       <View style={{}}>{renderCalendar()}</View>
@@ -322,6 +298,8 @@ const styles = StyleSheet.create({
   },
   title: {
     width: utils.HOUR_TITLE_WIDTH,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
