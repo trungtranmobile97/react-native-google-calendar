@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import utils from './utils';
 import Popup from './Popup';
 
 const Calendar = () => {
+
+  const refModal = useRef();
   let id = 1;
   const [canScroll, setCanScroll] = useState(true);
   const [start, setStart] = useState(null);
@@ -50,8 +52,14 @@ const Calendar = () => {
   };
 
   const onRelease = evt => {
+    console.log("CHeck")
     if (canScroll) return;
-    setVisible(true);
+    // setVisible(true);
+
+    // setVisible(true)
+    
+    refModal.current.onShowModal();
+
   };
 
   const renderHour = () => {
@@ -71,8 +79,8 @@ const Calendar = () => {
             <View style={styles.lineRow} />
           </View>
         ) : (
-          <View key={i} style={styles.itemHour} />
-        ),
+            <View key={i} style={styles.itemHour} />
+          ),
       );
     }
     return <View style={styles.ctHour}>{hours}</View>;
@@ -167,6 +175,7 @@ const Calendar = () => {
   return (
     <View style={StyleSheet.absoluteFill}>
       <Popup
+        ref={refModal}
         id={++id}
         visible={visible}
         onOk={onOk}
@@ -177,8 +186,8 @@ const Calendar = () => {
       {renderWeek()}
       <View
         style={{
-          marginTop: utils.MARGIN_TOP,
-          backgroundColor: 'red',
+          // marginTop: utils.MARGIN_TOP,
+          // backgroundColor: 'red',
         }}>
         {renderCalendar()}
       </View>
