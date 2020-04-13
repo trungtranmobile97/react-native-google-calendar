@@ -174,9 +174,11 @@ const Calendar = () => {
         from={start ? utils.getHour(start.x, start.y) : null}
         to={move ? utils.getHour(move.x, move.y) : null}
       />
+      {renderWeek()}
       <View
         style={{
           marginTop: utils.MARGIN_TOP,
+          backgroundColor: 'red',
         }}>
         {renderCalendar()}
       </View>
@@ -238,6 +240,8 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   ctDate: {
+    height: utils.DATE_HEIGHT,
+    marginTop: utils.MARGIN_TOP,
     backgroundColor: 'red',
     flexDirection: 'row',
   },
