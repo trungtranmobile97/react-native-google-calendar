@@ -140,8 +140,6 @@ const Popup = forwardRef((props, ref) => {
         </View>
         <ScrollView>
           <View style={{ flex: 1 }}>
-
-
             <View style={{ borderBottomWidth: 1, borderColor: '#ccc', paddingTop: 10, paddingBottom: 10 }}>
               <View style={{ marginLeft: 20, marginRight: 20 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>

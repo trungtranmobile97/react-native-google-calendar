@@ -269,13 +269,13 @@ const styles = StyleSheet.create({
   },
   lineRow: {
     width: utils.width - utils.HOUR_TITLE_WIDTH,
-    backgroundColor: 'grey',
-    height: 0.5,
+    backgroundColor: '#CCC',
+    height: 1,
   },
   lineColumn: {
-    width: 0.5,
+    width: 1,
     height: utils.height - utils.DATE_HEIGHT,
-    backgroundColor: 'black',
+    backgroundColor: '#000',
   },
   txtHour: {
     top: -8,
