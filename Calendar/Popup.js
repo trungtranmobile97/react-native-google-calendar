@@ -11,6 +11,7 @@ import {
 import {Picker} from '@react-native-community/picker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import utils from './utils';
+import moment from 'moment';
 
 const COLORS = ['red', 'green', 'blue', 'black', 'yellow', 'pink', 'purple'];
 
@@ -38,7 +39,7 @@ const Popup = props => {
   };
 
   const handleConfirmFrom = date => {
-    setFromDate(utils.getHourFromDate(date));
+    setFromDate(date);
     hideDatePickerFrom();
   };
 
@@ -47,7 +48,7 @@ const Popup = props => {
   };
 
   const handleConfirmTo = date => {
-    setToDate(utils.getHourFromDate(date));
+    setToDate(date);
     hideDatePickerTo();
   };
 
@@ -72,10 +73,6 @@ const Popup = props => {
   useEffect(() => {
     setFromDate(from);
     setToDate(to);
-    console.log('from', from);
-    console.log('to', to);
-    console.log('fromDate', fromDate);
-    console.log('toDate', toDate);
   }, [from, to]);
 
   return (
@@ -108,7 +105,11 @@ const Popup = props => {
               alignItems: 'center',
             }}
             onPress={() => setChooseFrom(true)}>
-            <Text>{fromDate ? `${fromDate.h} : ${fromDate.m}` : 'From'}</Text>
+            <Text>
+              {fromDate
+                ? moment(fromDate).format('ddd DD MM YYYY - HH:mm')
+                : 'From'}
+            </Text>
           </TouchableOpacity>
           <DateTimePickerModal
             isVisible={chooseFrom}
@@ -134,7 +135,9 @@ const Popup = props => {
               alignItems: 'center',
             }}
             onPress={() => setChooseTo(true)}>
-            <Text>{toDate ? `${toDate.h} : ${toDate.m}` : 'To'}</Text>
+            <Text>
+              {toDate ? moment(toDate).format('ddd DD MM YYYY - HH:mm') : 'To'}
+            </Text>
           </TouchableOpacity>
           <DateTimePickerModal
             isVisible={chooseTo}

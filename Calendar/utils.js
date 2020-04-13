@@ -12,6 +12,20 @@ const {width, height} = Dimensions.get('window');
 
 moment.locale('vi', {
   weekdaysShort: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+  monthsShort: [
+    'Thg 1',
+    'Thg 2',
+    'Thg 3',
+    'Thg 4',
+    'Thg 5',
+    'Thg 6',
+    'Thg 7',
+    'Thg 8',
+    'Thg 9',
+    'Thg 10',
+    'Thg 11',
+    'Thg 12',
+  ],
 });
 
 const getHour = (x, y) => {
@@ -31,10 +45,14 @@ const getHourFromDate = date => {
   };
 };
 
-const getPosition = hm => {
+const getPosition = (date, dates, dateWidth) => {
+  const index = indexOfDate(date, dates);
+  console.log('index: ', index);
+  const h = moment(date).hour();
+  const m = moment(date).minute();
   const position = {
-    x: 0,
-    y: hm.h * HOUR_HEIGHT + (hm.m * HOUR_HEIGHT) / 60,
+    x: index * dateWidth,
+    y: h * HOUR_HEIGHT + (m * HOUR_HEIGHT) / 60,
   };
   return position;
 };
@@ -76,12 +94,22 @@ const getMonIndex = (index, dates) => {
     date.setDate(date.getDate() - 1);
     index--;
   }
-  console.log('index: ', index);
   return index;
 };
 
 const getDay = date => {
   return moment(date).format('ddd');
+};
+
+const getDate = (date, position) => {
+  const hm = getHour(position.x, position.y);
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    hm.h,
+    hm.m,
+  );
 };
 
 export default {
@@ -100,4 +128,5 @@ export default {
   indexOfDate,
   getMonIndex,
   getDay,
+  getDate,
 };
