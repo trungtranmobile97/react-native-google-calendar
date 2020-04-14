@@ -44,7 +44,8 @@ const Popup = forwardRef((props, ref) => {
   /// DATE TIME START
   const [dateFrom, setDateFrom] = useState(null);
   const [timeFrom, setTimeFrom] = useState(null);
-
+  const [dateEnd, setDateEnd] = useState(null);
+  const [timeEnd, setTimeEnd] = useState(null);
 
   const [isVisible, setVisible] = useState(false);
 
@@ -60,10 +61,16 @@ const Popup = forwardRef((props, ref) => {
     console.log("END", endDate)
 
     const startTime = moment(startDate).format("HH:mm")
+    const endTime = moment(endDate).format("HH:mm")
+    const startDates = moment(startDate).format("DD/MM/YYYY")
+    const endDates = moment(endDate).format("DD/MM/YYYY")
 
     setVisible(true)
     setTimeFrom(startTime)
-    }
+    setTimeEnd(endTime)
+    setDateFrom(startDates)
+    setDateEnd(endDates)
+  }
 
 
   const onShowDateFrom = () => {
@@ -107,14 +114,26 @@ const Popup = forwardRef((props, ref) => {
 
   const addEvent = () => {
     onCancel();
+    const newFromDate = new Date(dateFrom.slice(6,10),dateFrom.slice(3,5),dateFrom.slice(0,2),timeFrom.slice(0,2),timeFrom.slice(3,5))
+    console.log(newFromDate)
+    const newEndDate = new Date(dateEnd.slice(6,10),dateEnd.slice(3,5),dateEnd.slice(0,2),timeEnd.slice(0,2),timeEnd.slice(3,5))
+    console.log(newEndDate)
+
+    
     const event = {
       id: id,
-      color: color,
+      color: 'red',
       describe: description,
-      start: fromDate,
-      end: toDate,
+      start: newFromDate,
+      end: newEndDate,
     };
+
+    console.log(event)
+
+    setVisible(false)
+
     return onOk(event);
+
   };
 
   const renderItemPicker = () => {
@@ -138,10 +157,10 @@ const Popup = forwardRef((props, ref) => {
     <Modal isVisible={isVisible} style={{ alignItems: 'center', flex: 1, margin: 0 }}>
       <View style={{ backgroundColor: '#fff', borderRadius: 10, width: '80%' }}>
         <View style={{ flexDirection: 'row', marginTop: 20 }}>
-          <TouchableOpacity style={{ flex: 1, marginLeft: 20, height: 40, width: 40 }} onPress={() => {setVisible(false), onCancel()}}>
+          <TouchableOpacity style={{ flex: 1, marginLeft: 20, height: 40, width: 40 }} onPress={() => { setVisible(false), onCancel() }}>
             <Image source={require('./src/images/close.png')} style={{ height: 20, width: 20 }} />
           </TouchableOpacity>
-          <TouchableOpacity style={{ backgroundColor: '#0080FF', paddingLeft: 12, paddingRight: 12, paddingBottom: 8, paddingTop: 8, marginRight: 20, borderRadius: 5 }}>
+          <TouchableOpacity style={{ backgroundColor: '#0080FF', paddingLeft: 12, paddingRight: 12, paddingBottom: 8, paddingTop: 8, marginRight: 20, borderRadius: 5 }} onPress={addEvent}>
             <Text style={{ color: '#fff' }}>Lưu</Text>
           </TouchableOpacity>
         </View>
@@ -149,7 +168,9 @@ const Popup = forwardRef((props, ref) => {
           <View style={{ marginLeft: 40 }}>
             <TextInput
               style={{ height: 40, fontSize: 20, paddingVertical: 0, fontWeight: '600' }}
-              placeholder='Thêm Tiêu Đề' />
+              placeholder='Thêm Tiêu Đề'
+              onChangeText={(value) => setDescription(value)}
+              />
           </View>
         </View>
         <ScrollView>
@@ -178,7 +199,7 @@ const Popup = forwardRef((props, ref) => {
                     {/* <Image source={require('./src/images/clock.png')} style={{ height: 20, width: 20 }} /> */}
                   </View>
                   <TouchableOpacity style={{ marginLeft: 20, flex: 1 }} onPress={onShowDateFrom}>
-                    <Text style={styles.tvTime}>Th3, 14 thg 4 2020</Text>
+                    <Text style={styles.tvTime}>{dateFrom}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={onShowTimeFrom}>
                     <Text style={styles.tvTime}>{timeFrom}</Text>
@@ -189,10 +210,10 @@ const Popup = forwardRef((props, ref) => {
                     {/* <Image source={require('./src/images/clock.png')} style={{ height: 20, width: 20 }} /> */}
                   </View>
                   <TouchableOpacity style={{ marginLeft: 20, flex: 1 }} onPress={() => onShowDateFrom(true)}>
-                    <Text style={styles.tvTime}>Th3, 14 thg 4 2020</Text>
+                    <Text style={styles.tvTime}>{dateEnd}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity  onPress={() => onShowTimeFrom(true)}>
-                    <Text style={styles.tvTime}>18:30</Text>
+                  <TouchableOpacity onPress={() => onShowTimeFrom(true)}>
+                    <Text style={styles.tvTime}>{timeEnd}</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -259,7 +280,7 @@ const Popup = forwardRef((props, ref) => {
                 </TouchableOpacity>
               </View>
             </View>
-            <View style={{ borderBottomWidth: 1, borderColor: '#ccc', paddingTop: 10, paddingBottom: 10, justifyContent:'center' }}>
+            {/* <View style={{ borderBottomWidth: 1, borderColor: '#ccc', paddingTop: 10, paddingBottom: 10, justifyContent: 'center' }}>
               <View style={{ marginLeft: 20, marginRight: 20 }}>
                 <View style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center' }}>
                   <View style={{ width: 40 }}>
@@ -269,11 +290,13 @@ const Popup = forwardRef((props, ref) => {
                     <TextInput
                       style={{ fontSize: 18, paddingVertical: 0, minHeight: 40, alignItems: 'center' }}
                       placeholder='Thêm mô tả'
-                      multiline />
+                      multiline
+                      onChangeText={(value) => setDescription(value)}
+                    />
                   </View>
                 </View>
               </View>
-            </View>
+            </View> */}
           </View>
         </ScrollView>
         <DateTimePickerModal
