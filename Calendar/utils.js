@@ -113,6 +113,58 @@ const getDate = (date, position) => {
   );
 };
 
+const compareEvent = (eventA, eventB) => {
+  const timeA = eventA.start.getTime();
+  const timeB = eventB.start.getTime();
+
+  if (timeA >= timeB) {
+    return 1;
+  }
+  return -1;
+};
+
+const convertEvents = events => {
+  events.sort(compareEvent);
+  for (let i = 0; i < events.length - 1; i++) {
+    let flex = 1;
+    const j = i;
+    let maxEnd = events[i].end.getHours() * 60 + events[i].end.getMinutes();
+    while (
+      i < events.length - 1 &&
+      events[i].start.getDate() === events[i + 1].start.getDate() &&
+      (events[i + 1].end.getHours() * 60 + events[i + 1].end.getMinutes() <=
+        maxEnd ||
+        events[i + 1].start.getHours() * 60 + events[i + 1].start.getMinutes() <
+          events[i].end.getHours() * 60 + events[i].end.getMinutes())
+    ) {
+      const iEndTime =
+        events[i].end.getHours() * 60 + events[i].end.getMinutes();
+      const i1StartTime =
+        events[i + 1].start.getHours() * 60 + events[i + 1].start.getMinutes();
+      const i1EndTime =
+        events[i + 1].end.getHours() * 60 + events[i + 1].end.getMinutes();
+
+      if (i1EndTime > maxEnd) {
+        maxEnd = i1EndTime;
+      }
+
+      if (iEndTime <= i1StartTime) {
+        events[i].position = flex;
+        events[i + 1].position = flex;
+      } else {
+        events[i].position = flex;
+        events[i + 1].position = ++flex;
+      }
+      // events[i + 1].position = ++flex;
+
+      i++;
+    }
+    for (j; j <= i; j++) {
+      events[j].flex = flex;
+    }
+  }
+};
+
 export default {
   HOUR_HEIGHT,
   MARGIN_TOP,
@@ -130,4 +182,6 @@ export default {
   getMonIndex,
   getDay,
   getDate,
+  compareEvent,
+  convertEvents,
 };

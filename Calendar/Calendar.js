@@ -22,6 +22,72 @@ const INDEX_DATE_NOW = utils.indexOfDate(TO_DAY, MONTH_DATES);
 const MON_INDEX = utils.getMonIndex(INDEX_DATE_NOW, MONTH_DATES);
 const PAGE = 0;
 const WEEK = MONTH_DATES.slice(MON_INDEX, MON_INDEX + 8);
+const WEEK_EVENTS = [
+  {
+    start: new Date(2020, 3, 14, 4, 0),
+    end: new Date(2020, 3, 14, 6, 0),
+    color: 'green',
+    describe: 'Sample Event 2',
+    flex: 1,
+    position: 1,
+  },
+  {
+    start: new Date(2020, 3, 13, 5, 10),
+    end: new Date(2020, 3, 13, 6, 0),
+    color: 'red',
+    describe: 'Sample Event 1',
+    flex: 1,
+    position: 1,
+  },
+  {
+    start: new Date(2020, 3, 15, 4, 0),
+    end: new Date(2020, 3, 15, 6, 0),
+    color: 'blue',
+    describe: 'Sample Event 3',
+    flex: 1,
+    position: 1,
+  },
+  {
+    start: new Date(2020, 3, 13, 2, 0),
+    end: new Date(2020, 3, 13, 6, 0),
+    color: 'pink',
+    describe: 'Sample Event 4',
+    flex: 1,
+    position: 1,
+  },
+  {
+    start: new Date(2020, 3, 13, 3, 0),
+    end: new Date(2020, 3, 13, 5, 0),
+    color: 'purple',
+    describe: 'Sample Event 5',
+    flex: 1,
+    position: 1,
+  },
+  {
+    start: new Date(2020, 3, 14, 3, 0),
+    end: new Date(2020, 3, 14, 5, 0),
+    color: 'purple',
+    describe: 'Sample Event 5',
+    flex: 1,
+    position: 1,
+  },
+  {
+    start: new Date(2020, 3, 16, 3, 0),
+    end: new Date(2020, 3, 16, 5, 0),
+    color: 'purple',
+    describe: 'Sample Event 5',
+    flex: 1,
+    position: 1,
+  },
+  {
+    start: new Date(2020, 3, 16, 6, 0),
+    end: new Date(2020, 3, 16, 9, 0),
+    color: 'purple',
+    describe: 'Sample Event 5',
+    flex: 1,
+    position: 1,
+  },
+];
 
 const Calendar = () => {
   const refModal = useRef();
@@ -84,10 +150,6 @@ const Calendar = () => {
   const onRelease = evt => {
     console.log('CHeck');
     if (canScroll) return;
-    // setVisible(true);
-
-    // setVisible(true)
-
     refModal.current.onShowModal(
       utils.getDate(WEEK[dateSelectedIndex], start),
       utils.getDate(WEEK[dateSelectedIndex], move),
@@ -151,12 +213,13 @@ const Calendar = () => {
   };
 
   const renderEvents = events => {
+    utils.convertEvents(events);
     const eventsView = events.map(event => {
       const start = utils.getPosition(event.start, WEEK, dateWidth);
       const end = utils.getPosition(event.end, WEEK, dateWidth);
       return (
         <TouchableOpacity
-          key={event.id}
+          key={++id}
           onPress={() => {
             alert(event.describe);
           }}
@@ -165,8 +228,8 @@ const Calendar = () => {
             {
               backgroundColor: event.color,
               top: start.y,
-              left: start.x,
-              width: dateWidth,
+              left: start.x + ((event.position - 1) * dateWidth) / event.flex,
+              width: dateWidth / event.flex,
               height: end.y - start.y,
             },
           ]}>
@@ -177,7 +240,7 @@ const Calendar = () => {
     return eventsView;
   };
 
-  const renderTable = () => {
+  const renderTable = events => {
     return (
       <View
         style={styles.ctTable}
@@ -207,7 +270,7 @@ const Calendar = () => {
       <ScrollView style={styles.scrollView} scrollEnabled={canScroll}>
         <View style={styles.calendar}>
           {renderHour()}
-          {renderTable()}
+          {renderTable(WEEK_EVENTS)}
         </View>
       </ScrollView>
     );
