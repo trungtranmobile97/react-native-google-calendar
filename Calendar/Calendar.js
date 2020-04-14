@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   Text,
@@ -13,14 +13,17 @@ import utils from './utils';
 import Popup from './Popup';
 import moment from 'moment';
 
-const MONTH_DATES = utils.getMonthDates(2020, 4);
-const INDEX_DATE_NOW = utils.indexOfDate(new Date(), MONTH_DATES);
+const TO_DAY = new Date();
+const MONTH_DATES = utils.getMonthDates(
+  TO_DAY.getFullYear(),
+  TO_DAY.getMonth() + 1,
+);
+const INDEX_DATE_NOW = utils.indexOfDate(TO_DAY, MONTH_DATES);
 const MON_INDEX = utils.getMonIndex(INDEX_DATE_NOW, MONTH_DATES);
 const PAGE = 0;
 const WEEK = MONTH_DATES.slice(MON_INDEX, MON_INDEX + 8);
 
 const Calendar = () => {
-
   const refModal = useRef();
   let id = 1;
   const [canScroll, setCanScroll] = useState(true);
@@ -79,14 +82,16 @@ const Calendar = () => {
   };
 
   const onRelease = evt => {
-    console.log("CHeck")
+    console.log('CHeck');
     if (canScroll) return;
     // setVisible(true);
 
     // setVisible(true)
 
-    refModal.current.onShowModal(utils.getDate(WEEK[dateSelectedIndex], start), utils.getDate(WEEK[dateSelectedIndex], move));
-
+    refModal.current.onShowModal(
+      utils.getDate(WEEK[dateSelectedIndex], start),
+      utils.getDate(WEEK[dateSelectedIndex], move),
+    );
   };
 
   const renderHour = () => {
@@ -106,8 +111,8 @@ const Calendar = () => {
             <View style={styles.lineRow} />
           </View>
         ) : (
-            <View key={i} style={styles.itemHour} />
-          ),
+          <View key={i} style={styles.itemHour} />
+        ),
       );
     }
     return <View style={styles.ctHour}>{hours}</View>;
@@ -217,8 +222,6 @@ const Calendar = () => {
         visible={visible}
         onOk={onOk}
         onCancel={onCancel}
-        // from={start ? utils.getHour(start.x, start.y) : null}
-        // to={move ? utils.getHour(move.x, move.y) : null}
         from={start ? utils.getDate(WEEK[dateSelectedIndex], start) : null}
         to={move ? utils.getDate(WEEK[dateSelectedIndex], move) : null}
       />

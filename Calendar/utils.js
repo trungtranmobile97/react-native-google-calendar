@@ -47,7 +47,6 @@ const getHourFromDate = date => {
 
 const getPosition = (date, dates, dateWidth) => {
   const index = indexOfDate(date, dates);
-  console.log('index: ', index);
   const h = moment(date).hour();
   const m = moment(date).minute();
   const position = {
@@ -62,11 +61,13 @@ const getDateIndex = (x, dateWidth) => {
 };
 
 const getMonthDates = (year, month) => {
-  const date = new Date(year, month - 1, 1);
+  const dateMonth = month - 1;
+  let i = 1;
   const days = [];
-  while (date.getMonth() === month - 1) {
-    days.push(new Date(date));
-    date.setDate(date.getDate() + 1);
+  let date = new Date(year, dateMonth, i);
+  while (date.getMonth() === dateMonth) {
+    days.push(date);
+    date = new Date(year, dateMonth, ++i);
   }
   return days;
 };
@@ -90,11 +91,11 @@ const indexOfDate = (date, dates) => {
 
 const getMonIndex = (index, dates) => {
   const date = dates[index];
-  while (date.getDay() !== 1) {
-    date.setDate(date.getDate() - 1);
-    index--;
+  let i = index;
+  while (dates[i].getDay() !== 1) {
+    i--;
   }
-  return index;
+  return i;
 };
 
 const getDay = date => {
