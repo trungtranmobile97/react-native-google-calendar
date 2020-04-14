@@ -20,6 +20,7 @@ import Modal from 'react-native-modal';
 // import Modal, { ModalContent } from 'react-native-modals';
 
 import ToggleSwitch from 'toggle-switch-react-native'
+import SelectColor from './SelectColor';
 
 
 const COLORS = ['red', 'green', 'blue', 'black', 'yellow', 'pink', 'purple'];
@@ -114,9 +115,9 @@ const Popup = forwardRef((props, ref) => {
 
   const addEvent = () => {
     onCancel();
-    const newFromDate = new Date(dateFrom.slice(6,10),dateFrom.slice(3,5),dateFrom.slice(0,2),timeFrom.slice(0,2),timeFrom.slice(3,5))
+    const newFromDate = new Date(dateFrom.slice(6,10), Number(dateFrom.slice(3,5)) - 1,dateFrom.slice(0,2),timeFrom.slice(0,2),timeFrom.slice(3,5))
     console.log(newFromDate)
-    const newEndDate = new Date(dateEnd.slice(6,10),dateEnd.slice(3,5),dateEnd.slice(0,2),timeEnd.slice(0,2),timeEnd.slice(3,5))
+    const newEndDate = new Date(dateEnd.slice(6,10), Number(dateFrom.slice(3,5)) - 1,dateEnd.slice(0,2),timeEnd.slice(0,2),timeEnd.slice(3,5))
     console.log(newEndDate)
 
     
@@ -299,6 +300,7 @@ const Popup = forwardRef((props, ref) => {
             </View> */}
           </View>
         </ScrollView>
+        {/* <SelectColor/> */}
         <DateTimePickerModal
           isVisible={showDate}
           mode={typeDate}
