@@ -7,6 +7,7 @@ import {
   Dimensions,
   TouchableOpacity,
   Alert,
+  Image,
 } from 'react-native';
 
 import utils from './utils';
@@ -20,74 +21,73 @@ const MONTH_DATES = utils.getMonthDates(
 );
 const INDEX_DATE_NOW = utils.indexOfDate(TO_DAY, MONTH_DATES);
 const MON_INDEX = utils.getMonIndex(INDEX_DATE_NOW, MONTH_DATES);
-const PAGE = 0;
 const WEEK = MONTH_DATES.slice(MON_INDEX, MON_INDEX + 8);
-const WEEK_EVENTS = [
-  {
-    start: new Date(2020, 3, 14, 4, 0),
-    end: new Date(2020, 3, 14, 6, 0),
-    color: 'green',
-    describe: 'Sample Event 2',
-    flex: 1,
-    position: 1,
-  },
-  {
-    start: new Date(2020, 3, 13, 5, 10),
-    end: new Date(2020, 3, 13, 6, 0),
-    color: 'red',
-    describe: 'Sample Event 1',
-    flex: 1,
-    position: 1,
-  },
-  {
-    start: new Date(2020, 3, 15, 4, 0),
-    end: new Date(2020, 3, 15, 6, 0),
-    color: 'blue',
-    describe: 'Sample Event 3',
-    flex: 1,
-    position: 1,
-  },
-  {
-    start: new Date(2020, 3, 13, 2, 0),
-    end: new Date(2020, 3, 13, 6, 0),
-    color: 'pink',
-    describe: 'Sample Event 4',
-    flex: 1,
-    position: 1,
-  },
-  {
-    start: new Date(2020, 3, 13, 3, 0),
-    end: new Date(2020, 3, 13, 5, 0),
-    color: 'purple',
-    describe: 'Sample Event 5',
-    flex: 1,
-    position: 1,
-  },
-  {
-    start: new Date(2020, 3, 14, 3, 0),
-    end: new Date(2020, 3, 14, 5, 0),
-    color: 'purple',
-    describe: 'Sample Event 5',
-    flex: 1,
-    position: 1,
-  },
-  {
-    start: new Date(2020, 3, 16, 3, 0),
-    end: new Date(2020, 3, 16, 5, 0),
-    color: 'purple',
-    describe: 'Sample Event 5',
-    flex: 1,
-    position: 1,
-  },
-  {
-    start: new Date(2020, 3, 16, 6, 0),
-    end: new Date(2020, 3, 16, 9, 0),
-    color: 'purple',
-    describe: 'Sample Event 5',
-    flex: 1,
-    position: 1,
-  },
-];
+// const WEEK_EVENTS = [
+//   {
+//     start: new Date(2020, 3, 14, 4, 0),
+//     end: new Date(2020, 3, 14, 6, 0),
+//     color: 'green',
+//     describe: 'Sample Event 2',
+//     flex: 1,
+//     position: 1,
+//   },
+//   {
+//     start: new Date(2020, 3, 13, 5, 10),
+//     end: new Date(2020, 3, 13, 6, 0),
+//     color: 'red',
+//     describe: 'Sample Event 1',
+//     flex: 1,
+//     position: 1,
+//   },
+//   {
+//     start: new Date(2020, 3, 15, 4, 0),
+//     end: new Date(2020, 3, 15, 6, 0),
+//     color: 'blue',
+//     describe: 'Sample Event 3',
+//     flex: 1,
+//     position: 1,
+//   },
+//   {
+//     start: new Date(2020, 3, 13, 2, 0),
+//     end: new Date(2020, 3, 13, 6, 0),
+//     color: 'pink',
+//     describe: 'Sample Event 4',
+//     flex: 1,
+//     position: 1,
+//   },
+//   {
+//     start: new Date(2020, 3, 13, 3, 0),
+//     end: new Date(2020, 3, 13, 5, 0),
+//     color: 'purple',
+//     describe: 'Sample Event 5',
+//     flex: 1,
+//     position: 1,
+//   },
+//   {
+//     start: new Date(2020, 3, 14, 3, 0),
+//     end: new Date(2020, 3, 14, 5, 0),
+//     color: 'purple',
+//     describe: 'Sample Event 5',
+//     flex: 1,
+//     position: 1,
+//   },
+//   {
+//     start: new Date(2020, 3, 16, 3, 0),
+//     end: new Date(2020, 3, 16, 5, 0),
+//     color: 'purple',
+//     describe: 'Sample Event 5',
+//     flex: 1,
+//     position: 1,
+//   },
+//   {
+//     start: new Date(2020, 3, 16, 6, 0),
+//     end: new Date(2020, 3, 16, 9, 0),
+//     color: 'purple',
+//     describe: 'Sample Event 5',
+//     flex: 1,
+//     position: 1,
+//   },
+// ];
 
 const Calendar = () => {
   const refModal = useRef();
@@ -270,7 +270,7 @@ const Calendar = () => {
       <ScrollView style={styles.scrollView} scrollEnabled={canScroll}>
         <View style={styles.calendar}>
           {renderHour()}
-          {renderTable(WEEK_EVENTS)}
+          {renderTable(events)}
         </View>
       </ScrollView>
     );
@@ -290,6 +290,14 @@ const Calendar = () => {
       />
       {renderWeek()}
       <View style={{}}>{renderCalendar()}</View>
+      <Image
+        style={styles.imgLeft}
+        source={require('./src/images/left_arrow.png')}
+      />
+      <Image
+        style={styles.imgRight}
+        source={require('./src/images/right_arrow.png')}
+      />
     </View>
   );
   /******* END MAIN  ***************************************/
@@ -366,6 +374,20 @@ const styles = StyleSheet.create({
     width: utils.HOUR_TITLE_WIDTH,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  imgLeft: {
+    position: 'absolute',
+    width: 30,
+    height: 30,
+    top: utils.height / 2,
+    left: 10,
+  },
+  imgRight: {
+    position: 'absolute',
+    width: 30,
+    height: 30,
+    top: utils.height / 2,
+    right: 10,
   },
 });
 
