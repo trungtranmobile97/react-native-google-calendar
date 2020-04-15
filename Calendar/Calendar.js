@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   Image,
+  Button,
 } from 'react-native';
 
 import utils from './utils';
@@ -15,13 +16,23 @@ import Popup from './Popup';
 import moment from 'moment';
 
 const TO_DAY = new Date();
-const MONTH_DATES = utils.getMonthDates(
-  TO_DAY.getFullYear(),
-  TO_DAY.getMonth() + 1,
-);
-const INDEX_DATE_NOW = utils.indexOfDate(TO_DAY, MONTH_DATES);
-const MON_INDEX = utils.getMonIndex(INDEX_DATE_NOW, MONTH_DATES);
-const WEEK = MONTH_DATES.slice(MON_INDEX, MON_INDEX + 8);
+// const MONTH_DATES = utils.getMonthDates(
+//   TO_DAY.getFullYear(),
+//   TO_DAY.getMonth() + 1,
+// );
+// const MONTH_DATES = utils.getYearDates(TO_DAY.getFullYear());
+const YEAR_DAYS = utils.getYearDates(TO_DAY.getFullYear());
+const INDEX_DATE_NOW = utils.indexOfDate(TO_DAY, YEAR_DAYS);
+const HEADER_EVENTS = [
+  {
+    start: new Date(2020, 3, 14, 4, 0),
+    end: new Date(2020, 3, 14, 6, 0),
+    color: 'green',
+    describe: 'Sample Event 2',
+    flex: 1,
+    position: 1,
+  },
+];
 // const WEEK_EVENTS = [
 //   {
 //     start: new Date(2020, 3, 14, 4, 0),
@@ -101,6 +112,12 @@ const Calendar = () => {
   const [sumDate, setSumDate] = useState(7);
   const [dateWidth, setDateWidth] = useState(0);
   const [dateSelectedIndex, setDateSelectedIndex] = useState(-1);
+  const [monIndex, setMonIndex] = useState(
+    utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS),
+  );
+  const [nowDate, setNowDate] = useState(TO_DAY);
+
+  const week = YEAR_DAYS.slice(monIndex, monIndex + 8);
 
   const restartState = () => {
     setCanScroll(true);
@@ -151,10 +168,43 @@ const Calendar = () => {
     console.log('CHeck');
     if (canScroll) return;
     refModal.current.onShowModal(
-      utils.getDate(WEEK[dateSelectedIndex], start),
-      utils.getDate(WEEK[dateSelectedIndex], move),
+      utils.getDate(week[dateSelectedIndex], start),
+      utils.getDate(week[dateSelectedIndex], move),
     );
   };
+
+  const onPreWeek = () => {
+    setMonIndex(monIndex - 7);
+    // setNowDate(week[0]);
+  };
+
+  const onNextWeek = () => {
+    setMonIndex(monIndex + 7);
+    // setNowDate(week[0]);
+  };
+
+  const onPreMonth = () => {
+    const index = utils.indexOfDate(
+      new Date(nowDate.getFullYear(), nowDate.getMonth() - 1, 1),
+      YEAR_DAYS,
+    );
+    setNowDate(new Date(nowDate.getFullYear(), nowDate.getMonth() - 1));
+    const monIndex = utils.getMonIndex(index, YEAR_DAYS);
+    setMonIndex(monIndex);
+  };
+  const onNextMonth = () => {
+    const index = utils.indexOfDate(
+      new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 1),
+      YEAR_DAYS,
+    );
+    setNowDate(new Date(nowDate.getFullYear(), nowDate.getMonth() + 1));
+    const monIndex = utils.getMonIndex(index, YEAR_DAYS);
+    setMonIndex(monIndex);
+  };
+
+  /************************************************************************** */
+  /**********       RENDER        ******************************************* */
+  /************************************************************************** */
 
   const renderHour = () => {
     const hours = [];
@@ -180,9 +230,9 @@ const Calendar = () => {
     return <View style={styles.ctHour}>{hours}</View>;
   };
 
-  const renderDate = () => {
+  const renderDate = week => {
     let id = 0;
-    return WEEK.map(date => {
+    return week.map(date => {
       return (
         <View
           key={id++}
@@ -200,14 +250,14 @@ const Calendar = () => {
     });
   };
 
-  const renderWeek = () => {
+  const renderWeek = week => {
     return (
       <View style={styles.ctDate}>
         <View style={styles.title}>
-          <Text>{moment(MONTH_DATES[0]).format('MMM')}</Text>
-          <Text>{moment(MONTH_DATES[0]).format('YYYY')}</Text>
+          {/* <Text>{moment(week[0]).format('MMM')}</Text>
+          <Text>{moment(week[0]).format('YYYY')}</Text> */}
         </View>
-        {renderDate()}
+        {renderDate(week)}
       </View>
     );
   };
@@ -215,8 +265,8 @@ const Calendar = () => {
   const renderEvents = events => {
     utils.convertEvents(events);
     const eventsView = events.map(event => {
-      const start = utils.getPosition(event.start, WEEK, dateWidth);
-      const end = utils.getPosition(event.end, WEEK, dateWidth);
+      const start = utils.getPosition(event.start, week, dateWidth);
+      const end = utils.getPosition(event.end, week, dateWidth);
       return (
         <TouchableOpacity
           key={++id}
@@ -276,7 +326,23 @@ const Calendar = () => {
     );
   };
 
+  const renderMoveMonth = () => {
+    return (
+      <View style={styles.ctMoveMonth}>
+        <Button title="PreMonth" onPress={onPreMonth} />
+        <View style={styles.ctYear}>
+          <Text>{moment(nowDate).format('MMM')}</Text>
+          <Text>{moment(nowDate).format('YYYY')}</Text>
+        </View>
+        <Button title="NextMonth" onPress={onNextMonth} />
+      </View>
+    );
+  };
+
   /******* START MAIN  ***************************************/
+  /******* START MAIN  ***************************************/
+  /******* START MAIN  ***************************************/
+
   return (
     <View style={StyleSheet.absoluteFill}>
       <Popup
@@ -285,19 +351,24 @@ const Calendar = () => {
         visible={visible}
         onOk={onOk}
         onCancel={onCancel}
-        from={start ? utils.getDate(WEEK[dateSelectedIndex], start) : null}
-        to={move ? utils.getDate(WEEK[dateSelectedIndex], move) : null}
+        from={start ? utils.getDate(week[dateSelectedIndex], start) : null}
+        to={move ? utils.getDate(week[dateSelectedIndex], move) : null}
       />
-      {renderWeek()}
+      {renderMoveMonth()}
+      {renderWeek(week)}
       <View style={{}}>{renderCalendar()}</View>
-      <Image
-        style={styles.imgLeft}
-        source={require('./src/images/left_arrow.png')}
-      />
-      <Image
-        style={styles.imgRight}
-        source={require('./src/images/right_arrow.png')}
-      />
+      <TouchableOpacity onPress={onPreWeek} style={styles.touchImgLeft}>
+        <Image
+          style={styles.imgLeft}
+          source={require('./src/images/left_arrow.png')}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={onNextWeek} style={styles.touchImgRight}>
+        <Image
+          style={styles.imgRight}
+          source={require('./src/images/right_arrow.png')}
+        />
+      </TouchableOpacity>
     </View>
   );
   /******* END MAIN  ***************************************/
@@ -361,7 +432,7 @@ const styles = StyleSheet.create({
   },
   ctDate: {
     height: utils.DATE_HEIGHT,
-    marginTop: utils.MARGIN_TOP,
+    // marginTop: utils.MARGIN_TOP,
     flexDirection: 'row',
     borderTopWidth: 1,
   },
@@ -374,20 +445,38 @@ const styles = StyleSheet.create({
     width: utils.HOUR_TITLE_WIDTH,
     justifyContent: 'center',
     alignItems: 'center',
+    // marginHorizontal: 50,
   },
   imgLeft: {
+    width: 30,
+    height: 30,
+  },
+  imgRight: {
+    width: 30,
+    height: 30,
+  },
+  touchImgLeft: {
     position: 'absolute',
     width: 30,
     height: 30,
     top: utils.height / 2,
     left: 10,
   },
-  imgRight: {
+  touchImgRight: {
     position: 'absolute',
     width: 30,
     height: 30,
     top: utils.height / 2,
     right: 10,
+  },
+  ctMoveMonth: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 20,
+  },
+  ctYear: {
+    marginHorizontal: 50,
   },
 });
 

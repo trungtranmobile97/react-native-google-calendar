@@ -72,6 +72,18 @@ const getMonthDates = (year, month) => {
   return days;
 };
 
+const getYearDates = year => {
+  const dateMonth = 0;
+  let i = 1;
+  const days = [];
+  let date = new Date(year, dateMonth, i);
+  while (date.getFullYear() === year) {
+    days.push(date);
+    date = new Date(year, dateMonth, ++i);
+  }
+  return days;
+};
+
 const indexOfDate = (date, dates) => {
   const dateNow = date.getDate();
   const monthNow = date.getMonth();
@@ -184,4 +196,5 @@ export default {
   getDate,
   compareEvent,
   convertEvents,
+  getYearDates,
 };
