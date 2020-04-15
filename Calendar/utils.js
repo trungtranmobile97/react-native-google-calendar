@@ -224,6 +224,33 @@ const convertHeaderEvents = events => {
   return maxPosition;
 };
 
+const getWeekDateEvents = (monDate, events) => {
+  events.sort(compareHeaderEvent);
+  const result = [];
+  const monTime = new Date(
+    monDate.getFullYear(),
+    monDate.getMonth(),
+    monDate.getDate(),
+  ).getTime();
+  const sunTime = new Date(
+    monDate.getFullYear(),
+    monDate.getMonth(),
+    monDate.getDate() + 6,
+  ).getTime();
+  for (let i = 0; i < events.length; i++) {
+    const iTime = new Date(
+      events[i].start.getFullYear(),
+      events[i].start.getMonth(),
+      events[i].start.getDate(),
+    ).getTime();
+    if (iTime >= monTime) {
+      if (iTime > sunTime) break;
+      result.push(events[i]);
+    }
+  }
+  return result;
+};
+
 export default {
   HOUR_HEIGHT,
   MARGIN_TOP,
@@ -246,4 +273,5 @@ export default {
   convertEvents,
   getYearDates,
   convertHeaderEvents,
+  getWeekDateEvents,
 };

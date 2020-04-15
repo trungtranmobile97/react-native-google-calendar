@@ -16,108 +16,17 @@ import Popup from './Popup';
 import moment from 'moment';
 
 const TO_DAY = new Date();
-// const MONTH_DATES = utils.getMonthDates(
-//   TO_DAY.getFullYear(),
-//   TO_DAY.getMonth() + 1,
-// );
-// const MONTH_DATES = utils.getYearDates(TO_DAY.getFullYear());
 const YEAR_DAYS = utils.getYearDates(TO_DAY.getFullYear());
 const INDEX_DATE_NOW = utils.indexOfDate(TO_DAY, YEAR_DAYS);
-// const HEADER_EVENTS = [
-//   {
-//     id: 1,
-//     start: new Date(2020, 3, 15, 4, 0),
-//     end: new Date(2020, 3, 15, 6, 0),
-//     color: 'red',
-//     describe: 'Sample Event 1',
-//     flex: 1,
-//     position: 1,
-//   },
-//   {
-//     id: 2,
-//     start: new Date(2020, 3, 14, 4, 0),
-//     end: new Date(2020, 3, 14, 6, 0),
-//     color: 'green',
-//     describe: 'Sample Event 2',
-//     flex: 1,
-//     position: 1,
-//   },
-//   {
-//     id: 3,
-//     start: new Date(2020, 3, 13, 4, 0),
-//     end: new Date(2020, 3, 16, 6, 0),
-//     color: 'blue',
-//     describe: 'Sample Event 3',
-//     flex: 1,
-//     position: 1,
-//   },
-// ];
-// const WEEK_EVENTS = [
-//   {
-//     start: new Date(2020, 3, 14, 4, 0),
-//     end: new Date(2020, 3, 14, 6, 0),
-//     color: 'green',
-//     describe: 'Sample Event 2',
-//     flex: 1,
-//     position: 1,
-//   },
-//   {
-//     start: new Date(2020, 3, 13, 5, 10),
-//     end: new Date(2020, 3, 13, 6, 0),
-//     color: 'red',
-//     describe: 'Sample Event 1',
-//     flex: 1,
-//     position: 1,
-//   },
-//   {
-//     start: new Date(2020, 3, 15, 4, 0),
-//     end: new Date(2020, 3, 15, 6, 0),
-//     color: 'blue',
-//     describe: 'Sample Event 3',
-//     flex: 1,
-//     position: 1,
-//   },
-//   {
-//     start: new Date(2020, 3, 13, 2, 0),
-//     end: new Date(2020, 3, 13, 6, 0),
-//     color: 'pink',
-//     describe: 'Sample Event 4',
-//     flex: 1,
-//     position: 1,
-//   },
-//   {
-//     start: new Date(2020, 3, 13, 3, 0),
-//     end: new Date(2020, 3, 13, 5, 0),
-//     color: 'purple',
-//     describe: 'Sample Event 5',
-//     flex: 1,
-//     position: 1,
-//   },
-//   {
-//     start: new Date(2020, 3, 14, 3, 0),
-//     end: new Date(2020, 3, 14, 5, 0),
-//     color: 'purple',
-//     describe: 'Sample Event 5',
-//     flex: 1,
-//     position: 1,
-//   },
-//   {
-//     start: new Date(2020, 3, 16, 3, 0),
-//     end: new Date(2020, 3, 16, 5, 0),
-//     color: 'purple',
-//     describe: 'Sample Event 5',
-//     flex: 1,
-//     position: 1,
-//   },
-//   {
-//     start: new Date(2020, 3, 16, 6, 0),
-//     end: new Date(2020, 3, 16, 9, 0),
-//     color: 'purple',
-//     describe: 'Sample Event 5',
-//     flex: 1,
-//     position: 1,
-//   },
-// ];
+const EVENT = {
+  id: 1,
+  start: new Date(2020, 3, 15, 6, 30),
+  end: new Date(2020, 3, 17, 6, 30),
+  describe: 'SAMPLE EVENT',
+  color: 'green',
+  position: 1,
+  flex: 1,
+};
 
 const Calendar = () => {
   const refModal = useRef();
@@ -178,7 +87,8 @@ const Calendar = () => {
     setCreateEventHeight(move.y - start.y);
   };
 
-  const onOk = event => {
+  const onOk = event1 => {
+    const event = EVENT;
     new Date(
       event.start.getFullYear(),
       event.start.getMonth(),
@@ -297,7 +207,8 @@ const Calendar = () => {
   };
 
   const renderHeaderEvents = events => {
-    return events.map(event => {
+    const weekEvents = utils.getWeekDateEvents(week[0], events);
+    return weekEvents.map(event => {
       return (
         <TouchableOpacity
           onPress={() => {
