@@ -40,13 +40,17 @@ const Calendar = () => {
   const [sumDate, setSumDate] = useState(7);
   const [dateWidth, setDateWidth] = useState(0);
   const [dateSelectedIndex, setDateSelectedIndex] = useState(-1);
-  const [monIndex, setMonIndex] = useState(
-    utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS),
-  );
+  // const [monIndex, setMonIndex] = useState(
+  //   utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS),
+  // );
   const [nowDate, setNowDate] = useState(TO_DAY);
   const [dateEvents] = useState([]);
-
-  const week = YEAR_DAYS.slice(monIndex, monIndex + 8);
+  const [week, setWeek] = useState(
+    YEAR_DAYS.slice(
+      utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS),
+      utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS) + 8,
+    ),
+  );
   const maxPosition = utils.convertHeaderEvents(dateEvents);
   const headerHeight =
     utils.DATE_HEIGHT + maxPosition * utils.HEADER_EVENT_HEIGHT;
@@ -117,13 +121,29 @@ const Calendar = () => {
   };
 
   const onPreWeek = () => {
-    setMonIndex(monIndex - 7);
-    // setNowDate(week[0]);
+    const indexDateNow = utils.getMonIndex(
+      utils.indexOfDate(nowDate, YEAR_DAYS),
+      YEAR_DAYS,
+    );
+    const newWeek = YEAR_DAYS.slice(
+      utils.getMonIndex(indexDateNow - 7, YEAR_DAYS),
+      utils.getMonIndex(indexDateNow - 7, YEAR_DAYS) + 8,
+    );
+    setWeek(newWeek);
+    setNowDate(newWeek[0]);
   };
 
   const onNextWeek = () => {
-    setMonIndex(monIndex + 7);
-    // setNowDate(week[0]);
+    const indexDateNow = utils.getMonIndex(
+      utils.indexOfDate(nowDate, YEAR_DAYS),
+      YEAR_DAYS,
+    );
+    const newWeek = YEAR_DAYS.slice(
+      utils.getMonIndex(indexDateNow + 7, YEAR_DAYS),
+      utils.getMonIndex(indexDateNow + 7, YEAR_DAYS) + 8,
+    );
+    setWeek(newWeek);
+    setNowDate(newWeek[0]);
   };
 
   const onPreMonth = () => {
@@ -131,18 +151,24 @@ const Calendar = () => {
       new Date(nowDate.getFullYear(), nowDate.getMonth() - 1, 1),
       YEAR_DAYS,
     );
-    setNowDate(new Date(nowDate.getFullYear(), nowDate.getMonth() - 1));
-    const monIndex = utils.getMonIndex(index, YEAR_DAYS);
-    setMonIndex(monIndex);
+    const newWeek = YEAR_DAYS.slice(
+      utils.getMonIndex(index, YEAR_DAYS),
+      utils.getMonIndex(index, YEAR_DAYS) + 8,
+    );
+    setNowDate(new Date(nowDate.getFullYear(), nowDate.getMonth() - 1), 1);
+    setWeek(newWeek);
   };
   const onNextMonth = () => {
     const index = utils.indexOfDate(
       new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 1),
       YEAR_DAYS,
     );
-    setNowDate(new Date(nowDate.getFullYear(), nowDate.getMonth() + 1));
-    const monIndex = utils.getMonIndex(index, YEAR_DAYS);
-    setMonIndex(monIndex);
+    const newWeek = YEAR_DAYS.slice(
+      utils.getMonIndex(index, YEAR_DAYS),
+      utils.getMonIndex(index, YEAR_DAYS) + 8,
+    );
+    setNowDate(new Date(nowDate.getFullYear(), nowDate.getMonth() + 1), 1);
+    setWeek(newWeek);
   };
 
   /************************************************************************** */
