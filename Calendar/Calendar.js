@@ -87,8 +87,7 @@ const Calendar = () => {
     setCreateEventHeight(move.y - start.y);
   };
 
-  const onOk = event1 => {
-    const event = EVENT;
+  const onOk = event => {
     new Date(
       event.start.getFullYear(),
       event.start.getMonth(),
