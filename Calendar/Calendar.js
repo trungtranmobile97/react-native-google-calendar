@@ -23,16 +23,35 @@ const TO_DAY = new Date();
 // const MONTH_DATES = utils.getYearDates(TO_DAY.getFullYear());
 const YEAR_DAYS = utils.getYearDates(TO_DAY.getFullYear());
 const INDEX_DATE_NOW = utils.indexOfDate(TO_DAY, YEAR_DAYS);
-const HEADER_EVENTS = [
-  {
-    start: new Date(2020, 3, 14, 4, 0),
-    end: new Date(2020, 3, 14, 6, 0),
-    color: 'green',
-    describe: 'Sample Event 2',
-    flex: 1,
-    position: 1,
-  },
-];
+// const HEADER_EVENTS = [
+//   {
+//     id: 1,
+//     start: new Date(2020, 3, 15, 4, 0),
+//     end: new Date(2020, 3, 15, 6, 0),
+//     color: 'red',
+//     describe: 'Sample Event 1',
+//     flex: 1,
+//     position: 1,
+//   },
+//   {
+//     id: 2,
+//     start: new Date(2020, 3, 14, 4, 0),
+//     end: new Date(2020, 3, 14, 6, 0),
+//     color: 'green',
+//     describe: 'Sample Event 2',
+//     flex: 1,
+//     position: 1,
+//   },
+//   {
+//     id: 3,
+//     start: new Date(2020, 3, 13, 4, 0),
+//     end: new Date(2020, 3, 16, 6, 0),
+//     color: 'blue',
+//     describe: 'Sample Event 3',
+//     flex: 1,
+//     position: 1,
+//   },
+// ];
 // const WEEK_EVENTS = [
 //   {
 //     start: new Date(2020, 3, 14, 4, 0),
@@ -106,7 +125,7 @@ const Calendar = () => {
   const [canScroll, setCanScroll] = useState(true);
   const [start, setStart] = useState(null);
   const [move, setMove] = useState(null);
-  const [events, setEvents] = useState([]);
+  const [hourEvents] = useState([]);
   const [visible, setVisible] = useState(false);
   const [createEventHeight, setCreateEventHeight] = useState(0);
   const [sumDate, setSumDate] = useState(7);
@@ -116,8 +135,12 @@ const Calendar = () => {
     utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS),
   );
   const [nowDate, setNowDate] = useState(TO_DAY);
+  const [dateEvents] = useState([]);
 
   const week = YEAR_DAYS.slice(monIndex, monIndex + 8);
+  const maxPosition = utils.convertHeaderEvents(dateEvents);
+  const headerHeight =
+    utils.DATE_HEIGHT + maxPosition * utils.HEADER_EVENT_HEIGHT;
 
   const restartState = () => {
     setCanScroll(true);
@@ -156,7 +179,18 @@ const Calendar = () => {
   };
 
   const onOk = event => {
-    events.push(event);
+    new Date(
+      event.start.getFullYear(),
+      event.start.getMonth(),
+      event.start.getDate(),
+    ).getTime() ===
+    new Date(
+      event.end.getFullYear(),
+      event.end.getMonth(),
+      event.end.getDate(),
+    ).getTime()
+      ? hourEvents.push(event)
+      : dateEvents.push(event);
     onCancel();
   };
 
@@ -240,7 +274,9 @@ const Calendar = () => {
             flexDirection: 'row',
             width: dateWidth,
           }}>
-          <View style={styles.lineColumn} />
+          <View
+            style={[styles.lineColumn, {height: utils.height - headerHeight}]}
+          />
           <View style={styles.date}>
             <Text>{utils.getDay(date)}</Text>
             <Text>{date.getDate()}</Text>
@@ -250,16 +286,41 @@ const Calendar = () => {
     });
   };
 
-  const renderWeek = week => {
+  const renderWeek = (week, dateEvents) => {
     return (
-      <View style={styles.ctDate}>
-        <View style={styles.title}>
-          {/* <Text>{moment(week[0]).format('MMM')}</Text>
-          <Text>{moment(week[0]).format('YYYY')}</Text> */}
-        </View>
+      <View style={[styles.ctDate, {height: headerHeight}]}>
+        <View style={styles.title} />
         {renderDate(week)}
+        {renderHeaderEvents(dateEvents)}
       </View>
     );
+  };
+
+  const renderHeaderEvents = events => {
+    return events.map(event => {
+      return (
+        <TouchableOpacity
+          onPress={() => {
+            alert(event.describe);
+          }}
+          key={event.id}
+          style={[
+            styles.headerEvent,
+            {
+              left:
+                utils.HOUR_TITLE_WIDTH + (event.start.getDay() - 1) * dateWidth,
+              backgroundColor: event.color,
+              top:
+                utils.DATE_HEIGHT +
+                utils.HEADER_EVENT_HEIGHT * (event.position - 1),
+              width:
+                (event.end.getDate() - event.start.getDate() + 1) * dateWidth,
+            },
+          ]}>
+          <Text style={styles.txtEvent}>{event.describe}</Text>
+        </TouchableOpacity>
+      );
+    });
   };
 
   const renderEvents = events => {
@@ -315,12 +376,14 @@ const Calendar = () => {
     );
   };
 
-  const renderCalendar = () => {
+  const renderCalendar = hourEvents => {
     return (
-      <ScrollView style={styles.scrollView} scrollEnabled={canScroll}>
+      <ScrollView
+        style={[styles.scrollView, {marginBottom: headerHeight + 30}]}
+        scrollEnabled={canScroll}>
         <View style={styles.calendar}>
           {renderHour()}
-          {renderTable(events)}
+          {renderTable(hourEvents)}
         </View>
       </ScrollView>
     );
@@ -355,8 +418,8 @@ const Calendar = () => {
         to={move ? utils.getDate(week[dateSelectedIndex], move) : null}
       />
       {renderMoveMonth()}
-      {renderWeek(week)}
-      <View style={{}}>{renderCalendar()}</View>
+      {renderWeek(week, dateEvents)}
+      <View style={{}}>{renderCalendar(hourEvents)}</View>
       <TouchableOpacity onPress={onPreWeek} style={styles.touchImgLeft}>
         <Image
           style={styles.imgLeft}
@@ -381,7 +444,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     marginLeft: utils.HOUR_TITLE_WIDTH,
-    // marginTop: utils.DATE_HEIGHT,
+    // marginTop: headerHeight,
   },
   itemHour: {
     height: utils.HOUR_HEIGHT,
@@ -395,7 +458,6 @@ const styles = StyleSheet.create({
   },
   lineColumn: {
     width: 1,
-    height: utils.height - utils.DATE_HEIGHT,
     backgroundColor: '#000',
   },
   txtHour: {
@@ -406,7 +468,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     borderTopWidth: 1,
-    marginBottom: utils.DATE_HEIGHT + 30,
   },
   hide: {
     width: 0,
@@ -431,7 +492,6 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   ctDate: {
-    height: utils.DATE_HEIGHT,
     // marginTop: utils.MARGIN_TOP,
     flexDirection: 'row',
     borderTopWidth: 1,
@@ -440,11 +500,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    height: utils.DATE_HEIGHT,
   },
   title: {
     width: utils.HOUR_TITLE_WIDTH,
-    justifyContent: 'center',
-    alignItems: 'center',
+    // justifyContent: 'center',
+    // alignItems: 'center',
     // marginHorizontal: 50,
   },
   imgLeft: {
@@ -477,6 +538,11 @@ const styles = StyleSheet.create({
   },
   ctYear: {
     marginHorizontal: 50,
+  },
+  headerEvent: {
+    position: 'absolute',
+    height: utils.HEADER_EVENT_HEIGHT,
+    alignItems: 'center',
   },
 });
 

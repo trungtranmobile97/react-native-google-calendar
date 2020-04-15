@@ -7,7 +7,7 @@ const MARGIN_TOP = 50;
 const HOUR_TITLE_WIDTH = 40;
 const DATE_HEIGHT = 50;
 const DATE_WIDTH = 100;
-
+const HEADER_EVENT_HEIGHT = 30;
 const {width, height} = Dimensions.get('window');
 
 moment.locale('vi', {
@@ -135,6 +135,13 @@ const compareEvent = (eventA, eventB) => {
   return -1;
 };
 
+const compareHeaderEvent = (eventA, eventB) => {
+  if (eventA.start.getDay() >= eventB.start.getDay()) {
+    return 1;
+  }
+  return -1;
+};
+
 const convertEvents = events => {
   events.sort(compareEvent);
   for (let i = 0; i < events.length - 1; i++) {
@@ -177,12 +184,53 @@ const convertEvents = events => {
   }
 };
 
+const convertHeaderEvents = events => {
+  events.sort(compareHeaderEvent);
+  let maxPosition = 1;
+  for (let i = 0; i < events.length - 1; i++) {
+    const maxEnd = events[i].end.getMonth() * 31 + events[i].end.getDate();
+    while (
+      i < events.length - 1 &&
+      (events[i].end.getMonth() * 31 + events[i].end.getDate() >
+        events[i + 1].start.getMonth() * 31 + events[i + 1].start.getDate() ||
+        events[i + 1].start.getMonth() * 31 + events[i + 1].start.getDate() <=
+          maxEnd)
+    ) {
+      if (
+        events[i + 1].end.getMonth() * 31 + events[i + 1].end.getDate() >
+        maxEnd
+      ) {
+        maxEnd =
+          events[i + 1].end.getMonth() * 31 + events[i + 1].end.getDate();
+      }
+
+      if (
+        events[i].end.getMonth() * 31 + events[i].end.getDate() >
+        events[i + 1].start.getMonth() * 31 + events[i + 1].start.getDate()
+      ) {
+        events[i + 1].position = events[i].position + 1;
+        maxPosition =
+          events[i + 1].position > maxPosition
+            ? events[i + 1].position
+            : maxPosition;
+      } else {
+        events[i + 1].position = events[i].position;
+      }
+
+      i++;
+    }
+  }
+
+  return maxPosition;
+};
+
 export default {
   HOUR_HEIGHT,
   MARGIN_TOP,
   HOUR_TITLE_WIDTH,
   DATE_WIDTH,
   DATE_HEIGHT,
+  HEADER_EVENT_HEIGHT,
   width,
   height,
   getHourFromDate,
@@ -197,4 +245,5 @@ export default {
   compareEvent,
   convertEvents,
   getYearDates,
+  convertHeaderEvents,
 };
