@@ -34,15 +34,12 @@ const Calendar = () => {
   const [canScroll, setCanScroll] = useState(true);
   const [start, setStart] = useState(null);
   const [move, setMove] = useState(null);
-  const [hourEvents] = useState([]);
+  const [hourEvents, setHourEvents] = useState([]);
   const [visible, setVisible] = useState(false);
   const [createEventHeight, setCreateEventHeight] = useState(0);
   const [sumDate, setSumDate] = useState(7);
   const [dateWidth, setDateWidth] = useState(0);
   const [dateSelectedIndex, setDateSelectedIndex] = useState(-1);
-  // const [monIndex, setMonIndex] = useState(
-  //   utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS),
-  // );
   const [nowDate, setNowDate] = useState(TO_DAY);
   const [dateEvents] = useState([]);
   const [week, setWeek] = useState(
@@ -117,6 +114,15 @@ const Calendar = () => {
     refModal.current.onShowModal(
       utils.getDate(week[dateSelectedIndex], start),
       utils.getDate(week[dateSelectedIndex], move),
+    );
+  };
+
+  const onAddEvent = () => {
+    setCanScroll(false);
+    const date = week[0];
+    refModal.current.onShowModal(
+      new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0),
+      new Date(date.getFullYear(), date.getMonth(), date.getDate(), 1, 0),
     );
   };
 
@@ -368,6 +374,12 @@ const Calendar = () => {
           source={require('./src/images/right_arrow.png')}
         />
       </TouchableOpacity>
+      <TouchableOpacity onPress={onAddEvent} style={styles.touchImgAddEvent}>
+        <Image
+          style={styles.imgAddEvent}
+          source={require('./src/images/plus.png')}
+        />
+      </TouchableOpacity>
     </View>
   );
   /******* END MAIN  ***************************************/
@@ -479,6 +491,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     height: utils.HEADER_EVENT_HEIGHT,
     alignItems: 'center',
+  },
+  imgAddEvent: {
+    width: 50,
+    height: 50,
+  },
+  touchImgAddEvent: {
+    position: 'absolute',
+    width: 50,
+    height: 50,
+    bottom: 50,
+    right: 50,
   },
 });
 
