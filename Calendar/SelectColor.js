@@ -17,6 +17,7 @@ import Modal from 'react-native-modal';
 
 const SelectColor = forwardRef((props, ref) => {
 
+	const { onSelect } = props
 	const colors = 
 		[
 			{ label: 'Màu đỏ cà chua', value: '#FF0000' },
@@ -40,9 +41,15 @@ const SelectColor = forwardRef((props, ref) => {
 	}
 
 
+	_selectColor = (item) => {
+		setVisible(false)
+		onSelect(item)
+	}
+
+
 	renderColor = ({item, index}) => {
 		return (
-			<View style={{marginBottom: 10}}>
+			<TouchableOpacity style={{marginBottom: 10}} onPress={() => _selectColor(item)}>
 				<View style={{flexDirection:'row'}}>
 					<View style={{height: 25, width: 25, borderRadius: 25/2, backgroundColor: item.value}}>
 
@@ -51,7 +58,7 @@ const SelectColor = forwardRef((props, ref) => {
 						<Text>{item.label}</Text>
 					</View>
 				</View>
-			</View>
+			</TouchableOpacity>
 		)
 	}
 
