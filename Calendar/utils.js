@@ -102,10 +102,17 @@ const indexOfDate = (date, dates) => {
 };
 
 const getMonIndex = (index, dates) => {
-  const date = dates[index];
   let i = index;
   while (dates[i].getDay() !== 1) {
     i--;
+  }
+  return i;
+};
+
+const getAfterMonIndex = (index, dates) => {
+  let i = index;
+  while (dates[i].getDay() !== 1) {
+    i++;
   }
   return i;
 };
@@ -267,6 +274,7 @@ export default {
   getMonthDates,
   indexOfDate,
   getMonIndex,
+  getAfterMonIndex,
   getDay,
   getDate,
   compareEvent,

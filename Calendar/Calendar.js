@@ -157,11 +157,9 @@ const Calendar = () => {
       new Date(nowDate.getFullYear(), nowDate.getMonth() - 1, 1),
       YEAR_DAYS,
     );
-    const newWeek = YEAR_DAYS.slice(
-      utils.getMonIndex(index, YEAR_DAYS),
-      utils.getMonIndex(index, YEAR_DAYS) + 8,
-    );
-    setNowDate(new Date(nowDate.getFullYear(), nowDate.getMonth() - 1), 1);
+    const monIndex = utils.getAfterMonIndex(index, YEAR_DAYS);
+    const newWeek = YEAR_DAYS.slice(monIndex, monIndex + 8);
+    setNowDate(newWeek[0]);
     setWeek(newWeek);
   };
   const onNextMonth = () => {
@@ -169,11 +167,9 @@ const Calendar = () => {
       new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 1),
       YEAR_DAYS,
     );
-    const newWeek = YEAR_DAYS.slice(
-      utils.getMonIndex(index, YEAR_DAYS),
-      utils.getMonIndex(index, YEAR_DAYS) + 8,
-    );
-    setNowDate(new Date(nowDate.getFullYear(), nowDate.getMonth() + 1), 1);
+    const monIndex = utils.getAfterMonIndex(index, YEAR_DAYS);
+    const newWeek = YEAR_DAYS.slice(monIndex, monIndex + 8);
+    setNowDate(newWeek[0]);
     setWeek(newWeek);
   };
 
