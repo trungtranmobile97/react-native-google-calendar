@@ -79,16 +79,12 @@ const Popup = forwardRef((props, ref) => {
     setDateEnd(endDates);
   };
 
-  const onShowDateFrom = () => {
-    setTypeDate('date');
-    setShowDate(true);
-    setTypeEvent('from');
-  };
 
-  const onShowTimeFrom = () => {
-    setTypeDate('time');
+
+  const onShowDateFrom = (type, from) => {
+    setTypeDate(type);
+    setTypeEvent(from);
     setShowDate(true);
-    setTypeEvent('from');
   };
 
   const hideDatePicker = () => {
@@ -98,6 +94,34 @@ const Popup = forwardRef((props, ref) => {
   const handleConfirm = date => {
     console.log(date);
     setShowDate(false);
+    if(typeEvent == 'from' && typeDate == 'date')
+    {
+      const startDates = moment(date).format('DD/MM/YYYY');
+      setDateFrom(startDates);
+      return;
+    }
+
+    if(typeEvent == 'from' && typeDate == 'time')
+    {
+      const startTime = moment(date).format('HH:mm');
+      setTimeFrom(startTime);
+      return;
+    }
+
+    if(typeEvent == 'end' && typeDate == 'date')
+    {
+      const endDates = moment(date).format('DD/MM/YYYY');
+      setDateEnd(endDates);
+      return;
+    }
+
+    if(typeEvent == 'end' && typeDate == 'time')
+    {
+      const endTime = moment(date).format('HH:mm');
+      setTimeEnd(endTime);
+      return;
+    }
+   
   };
 
   const hideDatePickerFrom = () => {
@@ -254,10 +278,10 @@ const Popup = forwardRef((props, ref) => {
                   </View>
                   <TouchableOpacity
                     style={{marginLeft: 20, flex: 1}}
-                    onPress={onShowDateFrom}>
+                    onPress={() => onShowDateFrom('date', 'from')}>
                     <Text style={styles.tvTime}>{dateFrom}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={onShowTimeFrom}>
+                  <TouchableOpacity onPress={() => onShowDateFrom('time', 'from')}>
                     <Text style={styles.tvTime}>{timeFrom}</Text>
                   </TouchableOpacity>
                 </View>
@@ -272,10 +296,10 @@ const Popup = forwardRef((props, ref) => {
                   </View>
                   <TouchableOpacity
                     style={{marginLeft: 20, flex: 1}}
-                    onPress={() => onShowDateFrom(true)}>
+                    onPress={() => onShowDateFrom('date', 'end')}>
                     <Text style={styles.tvTime}>{dateEnd}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => onShowTimeFrom(true)}>
+                  <TouchableOpacity  onPress={() => onShowDateFrom('time', 'end')}>
                     <Text style={styles.tvTime}>{timeEnd}</Text>
                   </TouchableOpacity>
                 </View>
@@ -451,145 +475,6 @@ const Popup = forwardRef((props, ref) => {
       </View>
     </Modal>
   );
-
-  // return (
-  //   <Modal visible={visible} transparent={true}>
-  //     <View style={{flex: 1, backgroundColor: 'black', opacity: 0.5}} />
-  //     <View
-  //       style={{
-  //         marginTop: '50%',
-  //         alignSelf: 'center',
-  //         position: 'absolute',
-  //         width: '80%',
-  //         justifyContent: 'center',
-  //         backgroundColor: 'white',
-  //         borderRadius: 20,
-  //         paddingVertical: 50,
-  //       }}>
-  //       <View
-  //         style={{
-  //           flexDirection: 'row',
-  //           alignItems: 'center',
-  //           marginBottom: 20,
-  //         }}>
-  //         <TouchableOpacity
-  //           style={{
-  //             borderWidth: 1,
-  //             width: '90%',
-  //             marginHorizontal: 20,
-  //             padding: 10,
-  //             borderRadius: 20,
-  //             alignItems: 'center',
-  //           }}
-  //           onPress={() => setChooseFrom(true)}>
-  //           <Text>{fromDate ? `${fromDate.h} : ${fromDate.m}` : 'From'}</Text>
-  //         </TouchableOpacity>
-  //         <DateTimePickerModal
-  //           isVisible={chooseFrom}
-  //           mode="datetime"
-  //           onConfirm={handleConfirmFrom}
-  //           onCancel={hideDatePickerFrom}
-  //         />
-  //       </View>
-
-  //       <View
-  //         style={{
-  //           flexDirection: 'row',
-  //           alignItems: 'center',
-  //           marginBottom: 20,
-  //         }}>
-  //         <TouchableOpacity
-  //           style={{
-  //             borderWidth: 1,
-  //             width: '90%',
-  //             marginHorizontal: 20,
-  //             padding: 10,
-  //             borderRadius: 20,
-  //             alignItems: 'center',
-  //           }}
-  //           onPress={() => setChooseTo(true)}>
-  //           <Text>{toDate ? `${toDate.h} : ${toDate.m}` : 'To'}</Text>
-  //         </TouchableOpacity>
-  //         <DateTimePickerModal
-  //           isVisible={chooseTo}
-  //           mode="datetime"
-  //           onConfirm={handleConfirmTo}
-  //           onCancel={hideDatePickerTo}
-  //         />
-  //       </View>
-
-  //       <View
-  //         style={{
-  //           flexDirection: 'row',
-  //           alignItems: 'center',
-  //           marginBottom: 20,
-  //           marginHorizontal: 20,
-  //         }}>
-  //         <Text style={{fontSize: 16, fontWeight: 'bold'}}>Color: </Text>
-  //         <Picker
-  //           selectedValue={color}
-  //           style={{height: 150, width: '85%'}}
-  //           itemStyle={{
-  //             height: 150,
-  //             borderWidth: 1,
-  //             borderRadius: 20,
-  //             backgroundColor: 'grey',
-  //           }}
-  //           onValueChange={value => {
-  //             setColor(value);
-  //           }}>
-  //           {renderItemPicker()}
-  //         </Picker>
-  //       </View>
-  //       <TextInput
-  //         style={{
-  //           borderWidth: 1,
-  //           width: '90%',
-  //           marginHorizontal: 20,
-  //           borderRadius: 20,
-  //           height: '30%',
-  //           padding: 10,
-  //         }}
-  //         value={description}
-  //         onChangeText={text => {
-  //           setDescription(text);
-  //         }}
-  //         placeholder="Enter event description"
-  //       />
-  //       <View
-  //         style={{
-  //           flexDirection: 'row',
-  //           justifyContent: 'center',
-  //           marginTop: 30,
-  //         }}>
-  //         <TouchableOpacity
-  //           onPress={addEvent}
-  //           style={{
-  //             borderWidth: 1,
-  //             marginHorizontal: 20,
-  //             padding: 10,
-  //             borderRadius: 20,
-  //             width: 100,
-  //             alignItems: 'center',
-  //           }}>
-  //           <Text>Ok</Text>
-  //         </TouchableOpacity>
-  //         <TouchableOpacity
-  //           onPress={onCancel}
-  //           style={{
-  //             borderWidth: 1,
-  //             width: 100,
-  //             marginHorizontal: 20,
-  //             padding: 10,
-  //             borderRadius: 20,
-  //             alignItems: 'center',
-  //           }}>
-  //           <Text>Cancel</Text>
-  //         </TouchableOpacity>
-  //       </View>
-  //     </View>
-  //   </Modal>
-  // );
 });
 
 export default Popup;

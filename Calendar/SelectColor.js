@@ -61,6 +61,7 @@ const SelectColor = forwardRef((props, ref) => {
 			<Modal
 				 isVisible={isVisible}
 				 style={{alignItems:'center'}}
+				 onBackdropPress={() => setVisible(false)}
 			 >
 				<View style={{ backgroundColor: '#FFF', paddingTop: 10, paddingBottom: 10, borderRadius: 5, paddingLeft: 12, paddingRight: 12, width: 400}}>
 					<FlatList
