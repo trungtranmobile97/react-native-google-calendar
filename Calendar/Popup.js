@@ -4,6 +4,7 @@ import React, {
   useEffect,
   forwardRef,
   useImperativeHandle,
+  useRef
 } from 'react';
 import {
   View,
@@ -23,7 +24,6 @@ import utils from './utils';
 
 import Modal from 'react-native-modal';
 
-// import Modal, { ModalContent } from 'react-native-modals';
 
 import ToggleSwitch from 'toggle-switch-react-native';
 import SelectColor from './SelectColor';
@@ -33,6 +33,10 @@ const COLORS = ['red', 'green', 'blue', 'black', 'yellow', 'pink', 'purple'];
 import moment from 'moment';
 
 const Popup = forwardRef((props, ref) => {
+
+  const refColor = useRef();
+
+
   const {visible, onOk, onCancel, id = 0, from = null, to = null} = props;
 
   const [fromDate, setFromDate] = useState(null);
@@ -398,7 +402,9 @@ const Popup = forwardRef((props, ref) => {
                     flexDirection: 'row',
                     marginTop: 10,
                     alignItems: 'center',
-                  }}>
+                  }}
+                  onPress={() => refColor.current.onSelectColor()}
+                  >
                   <View style={{width: 40}}>
                     <View
                       style={{
@@ -434,7 +440,8 @@ const Popup = forwardRef((props, ref) => {
             </View> */}
           </View>
         </ScrollView>
-        {/* <SelectColor/> */}
+        <SelectColor 
+           ref={refColor}/>
         <DateTimePickerModal
           isVisible={showDate}
           mode={typeDate}
