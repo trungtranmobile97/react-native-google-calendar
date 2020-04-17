@@ -45,7 +45,7 @@ const Calendar = () => {
   const [week, setWeek] = useState(
     YEAR_DAYS.slice(
       utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS),
-      utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS) + 8,
+      utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS) + 7,
     ),
   );
   const maxPosition = utils.convertHeaderEvents(dateEvents);
@@ -79,13 +79,15 @@ const Calendar = () => {
   };
 
   const onMove = evt => {
-    if (canScroll) return;
-    const move = {
-      x: evt.nativeEvent.locationX,
-      y: evt.nativeEvent.locationY,
-    };
-    setMove(move);
-    setCreateEventHeight(move.y - start.y);
+    if (canScroll) {
+    } else {
+      const move = {
+        x: evt.nativeEvent.locationX,
+        y: evt.nativeEvent.locationY,
+      };
+      setMove(move);
+      setCreateEventHeight(move.y - start.y);
+    }
   };
 
   const onOk = event => {
@@ -133,7 +135,7 @@ const Calendar = () => {
     );
     const newWeek = YEAR_DAYS.slice(
       utils.getMonIndex(indexDateNow - 7, YEAR_DAYS),
-      utils.getMonIndex(indexDateNow - 7, YEAR_DAYS) + 8,
+      utils.getMonIndex(indexDateNow - 7, YEAR_DAYS) + 7,
     );
     setWeek(newWeek);
     setNowDate(newWeek[0]);
@@ -146,7 +148,7 @@ const Calendar = () => {
     );
     const newWeek = YEAR_DAYS.slice(
       utils.getMonIndex(indexDateNow + 7, YEAR_DAYS),
-      utils.getMonIndex(indexDateNow + 7, YEAR_DAYS) + 8,
+      utils.getMonIndex(indexDateNow + 7, YEAR_DAYS) + 7,
     );
     setWeek(newWeek);
     setNowDate(newWeek[0]);
@@ -158,7 +160,7 @@ const Calendar = () => {
       YEAR_DAYS,
     );
     const monIndex = utils.getAfterMonIndex(index, YEAR_DAYS);
-    const newWeek = YEAR_DAYS.slice(monIndex, monIndex + 8);
+    const newWeek = YEAR_DAYS.slice(monIndex, monIndex + 7);
     setNowDate(newWeek[0]);
     setWeek(newWeek);
   };
@@ -168,13 +170,14 @@ const Calendar = () => {
       YEAR_DAYS,
     );
     const monIndex = utils.getAfterMonIndex(index, YEAR_DAYS);
-    const newWeek = YEAR_DAYS.slice(monIndex, monIndex + 8);
+    const newWeek = YEAR_DAYS.slice(monIndex, monIndex + 7);
     setNowDate(newWeek[0]);
     setWeek(newWeek);
   };
-
+  /************************************************************************** */
   /************************************************************************** */
   /**********       RENDER        ******************************************* */
+  /************************************************************************** */
   /************************************************************************** */
 
   const renderHour = () => {
@@ -203,7 +206,8 @@ const Calendar = () => {
 
   const renderDate = week => {
     let id = 0;
-    return week.map(date => {
+
+    const thisWeek = week.map(date => {
       return (
         <View
           key={id++}
@@ -221,6 +225,8 @@ const Calendar = () => {
         </View>
       );
     });
+
+    return thisWeek;
   };
 
   const renderWeek = (week, dateEvents) => {
@@ -343,6 +349,8 @@ const Calendar = () => {
   /******* START MAIN  ***************************************/
   /******* START MAIN  ***************************************/
   /******* START MAIN  ***************************************/
+  /******* START MAIN  ***************************************/
+  /******* START MAIN  ***************************************/
 
   return (
     <View style={StyleSheet.absoluteFill}>
@@ -378,6 +386,10 @@ const Calendar = () => {
       </TouchableOpacity>
     </View>
   );
+  /******* END MAIN  ***************************************/
+  /******* END MAIN  ***************************************/
+  /******* END MAIN  ***************************************/
+  /******* END MAIN  ***************************************/
   /******* END MAIN  ***************************************/
 };
 
