@@ -28,13 +28,25 @@ const EVENT = {
   flex: 1,
 };
 
+const HOUR_EVENTS = [
+  {
+    id: 1,
+    start: new Date(2020, 3, 15, 6, 30),
+    end: new Date(2020, 3, 15, 8, 0),
+    describe: 'SAMPLE EVENT',
+    color: 'green',
+    position: 1,
+    flex: 1,
+  },
+];
+
 const Calendar = () => {
   const refModal = useRef();
   let id = 1;
   const [canScroll, setCanScroll] = useState(true);
   const [start, setStart] = useState(null);
   const [move, setMove] = useState(null);
-  const [hourEvents, setHourEvents] = useState([]);
+  const [hourEvents, setHourEvents] = useState(HOUR_EVENTS);
   const [visible, setVisible] = useState(false);
   const [createEventHeight, setCreateEventHeight] = useState(0);
   const [sumDate, setSumDate] = useState(7);
@@ -52,13 +64,24 @@ const Calendar = () => {
   const headerHeight =
     utils.DATE_HEIGHT + maxPosition * utils.HEADER_EVENT_HEIGHT;
 
+  const initialState = () => {
+    utils.convertEvents(hourEvents);
+    utils.convertHeaderEvents(dateEvents);
+  };
+
   const restartState = () => {
     setCanScroll(true);
     setStart(null);
     setMove(null);
     setVisible(false);
     setCreateEventHeight(0);
+    utils.convertEvents(hourEvents);
+    utils.convertHeaderEvents(dateEvents);
   };
+
+  useEffect(() => {
+    initialState();
+  }, []);
 
   useEffect(() => {
     const width = (utils.width - utils.HOUR_TITLE_WIDTH) / sumDate;
@@ -215,13 +238,11 @@ const Calendar = () => {
             flexDirection: 'row',
             width: dateWidth,
           }}>
-          <View
-            style={[styles.lineColumn, {height: utils.height - headerHeight}]}
-          />
           <View style={styles.date}>
             <Text>{utils.getDay(date)}</Text>
             <Text>{date.getDate()}</Text>
           </View>
+          <View style={[styles.lineColumn, {height: headerHeight}]} />
         </View>
       );
     });
@@ -233,6 +254,7 @@ const Calendar = () => {
     return (
       <View style={[styles.ctDate, {height: headerHeight}]}>
         <View style={styles.title} />
+        <View style={styles.hourLineColumn} />
         {renderDate(week)}
         {renderHeaderEvents(dateEvents)}
       </View>
@@ -320,6 +342,77 @@ const Calendar = () => {
     );
   };
 
+  const renderNewEvents = (hourEvents, day) => {
+    const dateEvents = utils.getDateEvents(day, hourEvents);
+    utils.convertDateEvents(dateEvents);
+    return dateEvents.map(event => {
+      const pot = utils.getEventPosition(event);
+      return (
+        <View
+          style={{
+            position: 'absolute',
+            top: pot.y,
+            left: pot.x,
+            height: pot.height,
+            width: pot.width - 1,
+            backgroundColor: event.color,
+            padding: 5,
+            marginHorizontal: 1,
+          }}>
+          <Text>{event.describe}</Text>
+        </View>
+      );
+    });
+  };
+
+  const renderTableDay = hourEvents => {
+    const result = [];
+    week.map(day => {
+      result.push(
+        <View
+          key={day}
+          style={{
+            flex: 1,
+            borderLeftWidth: 1,
+            borderColor: '#CCC',
+          }}>
+          {renderNewEvents(hourEvents, day)}
+        </View>,
+      );
+    });
+    return result;
+  };
+
+  const renderWeekTable = hourEvents => {
+    return (
+      <View
+        style={{
+          width: utils.width - utils.HOUR_TITLE_WIDTH,
+          height: utils.HOUR_HEIGHT * 24,
+          flexDirection: 'row',
+          borderLeftWidth: 1,
+          borderRightWidth: 1,
+        }}>
+        {renderTableDay(hourEvents)}
+      </View>
+    );
+  };
+
+  const renderNewTable = hourEvents => {
+    return (
+      <ScrollView
+        style={{
+          marginLeft: utils.HOUR_TITLE_WIDTH,
+          width: '100%',
+          height: utils.HOUR_HEIGHT * 24,
+          position: 'absolute',
+        }}
+        horizontal={true}>
+        {renderWeekTable(hourEvents)}
+      </ScrollView>
+    );
+  };
+
   const renderCalendar = hourEvents => {
     return (
       <ScrollView
@@ -327,7 +420,8 @@ const Calendar = () => {
         scrollEnabled={canScroll}>
         <View style={styles.calendar}>
           {renderHour()}
-          {renderTable(hourEvents)}
+          {renderNewTable(hourEvents)}
+          {/* {renderTable(hourEvents)} */}
         </View>
       </ScrollView>
     );
@@ -510,6 +604,11 @@ const styles = StyleSheet.create({
     height: 50,
     bottom: 50,
     right: 50,
+  },
+  hourLineColumn: {
+    width: 1,
+    backgroundColor: 'black',
+    height: utils.height,
   },
 });
 

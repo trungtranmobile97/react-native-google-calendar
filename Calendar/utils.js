@@ -274,6 +274,71 @@ const getWeekDateEvents = (monDate, events) => {
   return result;
 };
 
+const getDateEvents = (date, events) => {
+  const result = [];
+  for (let i = 0; i < events.length; i++) {
+    if (events[i].start.getDate() > date.getDate()) break;
+    if (events[i].start.getDate() === date.getDate()) result.push(events[i]);
+  }
+  return result;
+};
+
+const convertDateEvents = events => {
+  for (let i = 0; i < events.length - 1; i++) {
+    let flex = 1;
+    const j = i;
+    let maxEnd = events[i].end.getHours() * 60 + events[i].end.getMinutes();
+    while (
+      i < events.length - 1 &&
+      events[i].start.getDate() === events[i + 1].start.getDate() &&
+      (events[i + 1].end.getHours() * 60 + events[i + 1].end.getMinutes() <=
+        maxEnd ||
+        events[i + 1].start.getHours() * 60 + events[i + 1].start.getMinutes() <
+          events[i].end.getHours() * 60 + events[i].end.getMinutes())
+    ) {
+      const iEndTime =
+        events[i].end.getHours() * 60 + events[i].end.getMinutes();
+      const i1StartTime =
+        events[i + 1].start.getHours() * 60 + events[i + 1].start.getMinutes();
+      const i1EndTime =
+        events[i + 1].end.getHours() * 60 + events[i + 1].end.getMinutes();
+
+      if (i1EndTime > maxEnd) {
+        maxEnd = i1EndTime;
+      }
+
+      if (iEndTime <= i1StartTime) {
+        events[i].position = flex;
+        events[i + 1].position = flex;
+      } else {
+        events[i].position = flex;
+        events[i + 1].position = ++flex;
+      }
+      // events[i + 1].position = ++flex;
+
+      i++;
+    }
+    for (j; j <= i; j++) {
+      events[j].flex = flex;
+    }
+  }
+};
+
+const getDayY = day => {
+  const h = moment(day).hour();
+  const m = moment(day).minute();
+  return h * HOUR_HEIGHT + (m * HOUR_HEIGHT) / 60;
+};
+
+const getEventPosition = event => {
+  return {
+    x: ((event.position - 1) * (width - HOUR_HEIGHT)) / 7 / 2,
+    y: getDayY(event.start),
+    width: (width - HOUR_HEIGHT) / 7 / event.flex,
+    height: getDayY(event.end) - getDayY(event.start),
+  };
+};
+
 export default {
   HOUR_HEIGHT,
   MARGIN_TOP,
@@ -299,4 +364,8 @@ export default {
   convertHeaderEvents,
   getWeekDateEvents,
   getYearMonths,
+  getDateEvents,
+  convertDateEvents,
+  getDayY,
+  getEventPosition,
 };
