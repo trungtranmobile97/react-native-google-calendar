@@ -339,6 +339,20 @@ const getEventPosition = event => {
   };
 };
 
+const getWeeks = currentDate => {
+  const result = [];
+  const dateIndex = currentDate.getDay() - 1;
+  for (let i = -2; i < 3; i++) {
+    const date = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate() - 7 * i - dateIndex,
+    );
+    result.push(date);
+  }
+  return result;
+};
+
 export default {
   HOUR_HEIGHT,
   MARGIN_TOP,
@@ -368,4 +382,5 @@ export default {
   convertDateEvents,
   getDayY,
   getEventPosition,
+  getWeeks,
 };
