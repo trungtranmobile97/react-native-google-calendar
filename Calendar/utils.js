@@ -339,16 +339,14 @@ const getEventPosition = event => {
   };
 };
 
-const getWeeks = currentDate => {
+const getWeeks = (currentDate, dates, numWeeks) => {
   const result = [];
-  const dateIndex = currentDate.getDay() - 1;
-  for (let i = -2; i < 3; i++) {
-    const date = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      currentDate.getDate() - 7 * i - dateIndex,
+  const index = indexOfDate(currentDate, dates);
+  const monIndex = getMonIndex(index, dates);
+  for (let i = -Math.floor(numWeeks / 2); i < Math.round(numWeeks / 2); i++) {
+    result.push(
+      dates.slice(monIndex + i * numWeeks, monIndex + i * numWeeks + 7),
     );
-    result.push(date);
   }
   return result;
 };

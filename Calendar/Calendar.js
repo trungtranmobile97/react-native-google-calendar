@@ -18,6 +18,8 @@ import moment from 'moment';
 const TO_DAY = new Date();
 const YEAR_DAYS = utils.getYearDates(TO_DAY.getFullYear());
 const INDEX_DATE_NOW = utils.indexOfDate(TO_DAY, YEAR_DAYS);
+const NUM_WEEKS = 5;
+const WEEKS = utils.getWeeks(TO_DAY, YEAR_DAYS, NUM_WEEKS);
 const EVENT = {
   id: 1,
   start: new Date(2020, 3, 15, 6, 30),
@@ -49,20 +51,12 @@ const Calendar = () => {
   const [move, setMove] = useState(null);
   const [hourEvents, setHourEvents] = useState(HOUR_EVENTS);
   const [visible, setVisible] = useState(false);
-  const [createEventHeight, setCreateEventHeight] = useState([
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-  ]);
   const [sumDate, setSumDate] = useState(7);
   const [dateWidth, setDateWidth] = useState(0);
-  const [dateSelectedIndex, setDateSelectedIndex] = useState(0);
+  const [dateSelectedIndex, setDateSelectedIndex] = useState(-1);
   const [nowDate, setNowDate] = useState(TO_DAY);
   const [dateEvents] = useState([]);
+  const [weeks, setWeeks] = useState(WEEKS);
   const [week, setWeek] = useState(
     YEAR_DAYS.slice(
       utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS),
@@ -74,13 +68,13 @@ const Calendar = () => {
     utils.DATE_HEIGHT + maxPosition * utils.HEADER_EVENT_HEIGHT;
 
   const restartState = () => {
+    utils.convertEvents(hourEvents);
+    utils.convertHeaderEvents(dateEvents);
     setCanScroll(true);
     setStart(null);
     setMove(null);
     setVisible(false);
-    createEventHeight[dateSelectedIndex] = 0;
-    utils.convertEvents(hourEvents);
-    utils.convertHeaderEvents(dateEvents);
+    setDateSelectedIndex(-1);
   };
 
   useEffect(() => {
@@ -118,10 +112,9 @@ const Calendar = () => {
       y: evt.nativeEvent.locationY,
     };
     const index = day.getDay();
+    setStart(start);
     setDateSelectedIndex(index);
     setCanScroll(false);
-    createEventHeight[index] = 5;
-    setStart(start);
   };
 
   const onMove = evt => {
@@ -132,7 +125,6 @@ const Calendar = () => {
         y: evt.nativeEvent.locationY,
       };
       setMove(move);
-      createEventHeight[dateSelectedIndex] = move.y - start.y;
     }
   };
 
@@ -259,7 +251,7 @@ const Calendar = () => {
     return <View style={styles.ctHour}>{hours}</View>;
   };
 
-  const renderDate = week => {
+  const renderDate = () => {
     let id = 0;
 
     const thisWeek = week.map(date => {
@@ -282,19 +274,19 @@ const Calendar = () => {
     return thisWeek;
   };
 
-  const renderWeek = (week, dateEvents) => {
+  const renderWeek = () => {
     return (
       <View style={[styles.ctDate, {height: headerHeight}]}>
         <View style={styles.title} />
         <View style={styles.hourLineColumn} />
-        {renderDate(week)}
-        {renderHeaderEvents(dateEvents)}
+        {renderDate()}
+        {renderHeaderEvents()}
       </View>
     );
   };
 
-  const renderHeaderEvents = events => {
-    const weekEvents = utils.getWeekDateEvents(week[0], events);
+  const renderHeaderEvents = () => {
+    const weekEvents = utils.getWeekDateEvents(week[0], dateEvents);
     return weekEvents.map(event => {
       return (
         <TouchableOpacity
@@ -374,7 +366,7 @@ const Calendar = () => {
   //   );
   // };
 
-  const renderNewEvents = (hourEvents, day) => {
+  const renderNewEvents = day => {
     const dateEvents = utils.getDateEvents(day, hourEvents);
     utils.convertDateEvents(dateEvents);
     return dateEvents.map(event => {
@@ -399,15 +391,9 @@ const Calendar = () => {
     });
   };
 
-  const renderTableDay = (hourEvents, firstDate) => {
-    const result = [];
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(
-        firstDate.getFullYear(),
-        firstDate.getMonth(),
-        firstDate.getDate() + i,
-      );
-      result.push(
+  const renderTableDay = week => {
+    return week.map(day => {
+      return (
         <View
           key={day}
           onStartShouldSetResponder={evt => true}
@@ -421,19 +407,23 @@ const Calendar = () => {
           }}>
           <TouchableOpacity
             onLongPress={evt => onLongPress(evt, day)}
-            key={day}
             activeOpacity={1}
             style={{
               flex: 1,
-              // borderLeftWidth: 1,
-              // borderColor: '#CCC',
             }}>
-            {renderNewEvents(hourEvents, day)}
+            {renderNewEvents(day)}
             <View
               style={[
                 styles.createEvent,
                 {
-                  height: createEventHeight[day.getDay()],
+                  height:
+                    day.getDay() === dateSelectedIndex
+                      ? move && start
+                        ? move.y - start.y != 5
+                          ? move.y - start.y
+                          : 5
+                        : 5
+                      : 0,
                   left: 0,
                   top: start ? start.y : 0,
                   width: '100%',
@@ -442,14 +432,12 @@ const Calendar = () => {
               ]}
             />
           </TouchableOpacity>
-        </View>,
+        </View>
       );
-    }
-
-    return result;
+    });
   };
 
-  const renderWeekTable = (hourEvents, week) => {
+  const renderWeekTable = week => {
     return (
       <View
         key={week}
@@ -460,13 +448,12 @@ const Calendar = () => {
           borderLeftWidth: 1,
           borderRightWidth: 1,
         }}>
-        {renderTableDay(hourEvents, week)}
+        {renderTableDay(week)}
       </View>
     );
   };
 
-  const renderNewTable = hourEvents => {
-    const weeks = utils.getWeeks(nowDate);
+  const renderNewTable = () => {
     return (
       <ScrollView
         ref={refWeekScroll}
@@ -480,20 +467,20 @@ const Calendar = () => {
         horizontal={true}
         pagingEnabled={true}>
         {weeks.map(week => {
-          return renderWeekTable(hourEvents, week);
+          return renderWeekTable(week);
         })}
       </ScrollView>
     );
   };
 
-  const renderCalendar = hourEvents => {
+  const renderCalendar = () => {
     return (
       <ScrollView
         style={[styles.scrollView, {marginBottom: headerHeight + 30}]}
         scrollEnabled={canScroll}>
         <View style={styles.calendar}>
           {renderHour()}
-          {renderNewTable(hourEvents)}
+          {renderNewTable()}
           {/* {renderTable(hourEvents)} */}
         </View>
       </ScrollView>
@@ -527,13 +514,21 @@ const Calendar = () => {
         visible={visible}
         onOk={onOk}
         onCancel={onCancel}
-        from={start ? utils.getDate(week[dateSelectedIndex], start) : null}
-        to={move ? utils.getDate(week[dateSelectedIndex], move) : null}
+        from={
+          start && dateSelectedIndex >= 0
+            ? utils.getDate(week[dateSelectedIndex], start)
+            : null
+        }
+        to={
+          move && dateSelectedIndex >= 0
+            ? utils.getDate(week[dateSelectedIndex], move)
+            : null
+        }
       />
       {renderMoveMonth()}
-      {renderWeek(week, dateEvents)}
-      <View style={{}}>{renderCalendar(hourEvents)}</View>
-      <TouchableOpacity onPress={onPreWeek} style={styles.touchImgLeft}>
+      {renderWeek()}
+      <View style={{}}>{renderCalendar()}</View>
+      {/* <TouchableOpacity onPress={onPreWeek} style={styles.touchImgLeft}>
         <Image
           style={styles.imgLeft}
           source={require('./src/images/left_arrow.png')}
@@ -544,7 +539,7 @@ const Calendar = () => {
           style={styles.imgRight}
           source={require('./src/images/right_arrow.png')}
         />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <TouchableOpacity onPress={onAddEvent} style={styles.touchImgAddEvent}>
         <Image
           style={styles.imgAddEvent}
