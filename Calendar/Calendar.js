@@ -51,25 +51,30 @@ const Calendar = () => {
   const [move, setMove] = useState(null);
   const [hourEvents, setHourEvents] = useState(HOUR_EVENTS);
   const [visible, setVisible] = useState(false);
-  const [sumDate, setSumDate] = useState(7);
-  const [dateWidth, setDateWidth] = useState(0);
+  const [dateWidth, setDateWidth] = useState(
+    (utils.width - utils.HOUR_TITLE_WIDTH) / 7,
+  );
   const [dateSelectedIndex, setDateSelectedIndex] = useState(-1);
   const [nowDate, setNowDate] = useState(TO_DAY);
   const [dateEvents] = useState([]);
+  const [years, setYears] = useState(YEAR_DAYS);
   const [weeks, setWeeks] = useState(WEEKS);
   const [week, setWeek] = useState(
-    YEAR_DAYS.slice(
-      utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS),
-      utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS) + 7,
-    ),
+    // YEAR_DAYS.slice(
+    //   utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS),
+    //   utils.getMonIndex(INDEX_DATE_NOW, YEAR_DAYS) + 7,
+    // ),
+    weeks[Math.floor(NUM_WEEKS / 2)],
   );
-  const maxPosition = utils.convertHeaderEvents(dateEvents);
-  const headerHeight =
-    utils.DATE_HEIGHT + maxPosition * utils.HEADER_EVENT_HEIGHT;
+  const [headerHeight, setHeaderHeight] = useState(0);
 
   const restartState = () => {
     utils.convertEvents(hourEvents);
-    utils.convertHeaderEvents(dateEvents);
+    const maxPosition = utils.convertHeaderEvents(dateEvents);
+    console.log('max: ', maxPosition);
+    const headerHeight =
+      utils.DATE_HEIGHT + maxPosition * utils.HEADER_EVENT_HEIGHT;
+    setHeaderHeight(headerHeight);
     setCanScroll(true);
     setStart(null);
     setMove(null);
@@ -87,11 +92,6 @@ const Calendar = () => {
       });
     }, 500);
   }, []);
-
-  useEffect(() => {
-    const width = (utils.width - utils.HOUR_TITLE_WIDTH) / sumDate;
-    setDateWidth(width);
-  }, [sumDate]);
 
   // const onLongPress = evt => {
   //   const start = {
@@ -149,7 +149,6 @@ const Calendar = () => {
   };
 
   const onRelease = evt => {
-    console.log('CHeck');
     if (canScroll) return;
     refModal.current.onShowModal(
       utils.getDate(week[dateSelectedIndex - 1], start),
@@ -195,31 +194,43 @@ const Calendar = () => {
   const onPreMonth = () => {
     const index = utils.indexOfDate(
       new Date(nowDate.getFullYear(), nowDate.getMonth() - 1, 1),
-      YEAR_DAYS,
+      years,
     );
-    const monIndex = utils.getAfterMonIndex(index, YEAR_DAYS);
-    const newWeek = YEAR_DAYS.slice(monIndex, monIndex + 7);
+    const monIndex = utils.getAfterMonIndex(index, years);
+    const newWeek = years.slice(monIndex, monIndex + 7);
     setNowDate(newWeek[0]);
     setWeek(newWeek);
   };
   const onNextMonth = () => {
     const index = utils.indexOfDate(
       new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 1),
-      YEAR_DAYS,
+      years,
     );
-    const monIndex = utils.getAfterMonIndex(index, YEAR_DAYS);
-    const newWeek = YEAR_DAYS.slice(monIndex, monIndex + 7);
+    const monIndex = utils.getAfterMonIndex(index, years);
+    const newWeek = years.slice(monIndex, monIndex + 7);
     setNowDate(newWeek[0]);
     setWeek(newWeek);
   };
 
   const onScrollWeek = evt => {
-    console.log('evtX: ', evt.nativeEvent.contentOffset.x);
-    // refWeekScroll.current.scrollTo({
-    //   x: utils.width - utils.HOUR_TITLE_WIDTH,
-    //   y: 0,
-    //   animated: true,
-    // });
+    const weekWidth = utils.width - utils.HOUR_TITLE_WIDTH;
+    const weekIndex = evt.nativeEvent.contentOffset.x / weekWidth;
+    if (weeks[weekIndex][0].getTime() === week[0].getTime()) {
+      return;
+    }
+    setWeek(weeks[weekIndex]);
+    // if (weekIndex === 0) {
+    //   const monIndex = utils.indexOfDate(week[0], years);
+    //   const newWeek = years.slice(monIndex - 7, monIndex);
+    //   weeks.unshift(newWeek);
+    //   // setWeeks(newWeeks);
+    //   console.log('weeks: ', weeks);
+    // } else if (weekIndex >= weeks.length - 1) {
+    //   const monIndex = utils.indexOfDate(week[0], years);
+    //   const newWeek = years.slice(monIndex + 7, monIndex + 14);
+    //   weeks.push(newWeek);
+    //   console.log('weeks: ', weeks);
+    // }
   };
   /************************************************************************** */
   /************************************************************************** */
@@ -373,7 +384,7 @@ const Calendar = () => {
       const pot = utils.getEventPosition(event);
       return (
         <TouchableOpacity
-          id={event.id}
+          key={event.id}
           onPress={() => alert(event.describe)}
           style={{
             position: 'absolute',
@@ -438,9 +449,10 @@ const Calendar = () => {
   };
 
   const renderWeekTable = week => {
+    let id = 0;
     return (
       <View
-        key={week}
+        key={week + id++}
         style={{
           width: utils.width - utils.HOUR_TITLE_WIDTH,
           height: utils.HOUR_HEIGHT * 24,
@@ -465,7 +477,8 @@ const Calendar = () => {
           position: 'absolute',
         }}
         horizontal={true}
-        pagingEnabled={true}>
+        pagingEnabled={true}
+        onMomentumScrollEnd={onScrollWeek}>
         {weeks.map(week => {
           return renderWeekTable(week);
         })}

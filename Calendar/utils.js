@@ -208,7 +208,9 @@ const convertEvents = events => {
 };
 
 const convertHeaderEvents = events => {
+  if (events.length <= 0) return 0;
   events.sort(compareHeaderEvent);
+  console.log('events: ', events);
   let maxPosition = 1;
   for (let i = 0; i < events.length - 1; i++) {
     const maxEnd = events[i].end.getMonth() * 31 + events[i].end.getDate();
@@ -229,7 +231,7 @@ const convertHeaderEvents = events => {
 
       if (
         events[i].end.getMonth() * 31 + events[i].end.getDate() >
-        events[i + 1].start.getMonth() * 31 + events[i + 1].start.getDate()
+        events[i + 1].start.getMonth() * 31 + events[i + 1].start.getDate() - 1
       ) {
         events[i + 1].position = events[i].position + 1;
         maxPosition =
@@ -344,10 +346,9 @@ const getWeeks = (currentDate, dates, numWeeks) => {
   const index = indexOfDate(currentDate, dates);
   const monIndex = getMonIndex(index, dates);
   for (let i = -Math.floor(numWeeks / 2); i < Math.round(numWeeks / 2); i++) {
-    result.push(
-      dates.slice(monIndex + i * numWeeks, monIndex + i * numWeeks + 7),
-    );
+    result.push(dates.slice(monIndex + i * 7, monIndex + i * 7 + 7));
   }
+  console.log('result: ', result);
   return result;
 };
 
