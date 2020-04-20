@@ -84,6 +84,34 @@ const getYearDates = year => {
   return days;
 };
 
+const get3YearDates = year => {
+  const days = [];
+  let date = new Date(year - 1, 0, 1);
+  while (date.getFullYear() >= year - 1 && date.getFullYear() <= year + 1) {
+    days.push(date);
+    date = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+  }
+  return days;
+};
+
+const addYearTo = (year, dates) => {
+  let date = new Date(year + 1, 0, 1 - 1);
+  while (date.getFullYear() === year) {
+    dates.unshift(date);
+    date = new Date(year, date.getMonth(), date.getDate() - 1);
+  }
+};
+
+const addNextYearTo = (year, dates) => {
+  const dateMonth = 0;
+  let i = 1;
+  let date = new Date(year, dateMonth, i);
+  while (date.getFullYear() === year) {
+    dates.push(date);
+    date = new Date(year, dateMonth, ++i);
+  }
+};
+
 const getYearMonths = year => {
   const result = [];
 
@@ -397,4 +425,7 @@ export default {
   getWeeks,
   getPreWeek,
   getNextWeek,
+  addYearTo,
+  addNextYearTo,
+  get3YearDates,
 };

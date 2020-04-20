@@ -17,9 +17,9 @@ import moment from 'moment';
 
 const DAY = new Date();
 const TO_DAY = new Date(DAY.getFullYear(), DAY.getMonth(), DAY.getDate());
-const YEAR_DAYS = utils.getYearDates(TO_DAY.getFullYear());
+const YEAR_DAYS = utils.get3YearDates(TO_DAY.getFullYear());
 const INDEX_DATE_NOW = utils.indexOfDate(TO_DAY, YEAR_DAYS);
-const NUM_WEEKS = 5;
+const NUM_WEEKS = 11;
 const WEEKS = utils.getWeeks(TO_DAY, YEAR_DAYS, NUM_WEEKS);
 const EVENT = {
   id: 1,
@@ -96,19 +96,6 @@ const Calendar = () => {
     }, 500);
   }, []);
 
-  // const onLongPress = evt => {
-  //   const start = {
-  //     x: evt.nativeEvent.locationX,
-  //     y: evt.nativeEvent.locationY,
-  //   };
-  //   const dateIndex = utils.getDateIndex(start.x, dateWidth);
-
-  //   setDateSelectedIndex(dateIndex);
-  //   setCanScroll(false);
-  //   setCreateEventHeight(5);
-  //   setStart(start);
-  // };
-
   const onLongPress = (evt, day) => {
     const start = {
       x: evt.nativeEvent.locationX,
@@ -168,77 +155,90 @@ const Calendar = () => {
     );
   };
 
-  // const onPreWeek = () => {
-  //   const indexDateNow = utils.getMonIndex(
-  //     utils.indexOfDate(nowDate, YEAR_DAYS),
-  //     YEAR_DAYS,
-  //   );
-  //   const newWeek = YEAR_DAYS.slice(
-  //     utils.getMonIndex(indexDateNow - 7, YEAR_DAYS),
-  //     utils.getMonIndex(indexDateNow - 7, YEAR_DAYS) + 7,
-  //   );
-  //   setWeek(newWeek);
-  //   setNowDate(newWeek[0]);
-  // };
-
-  // const onNextWeek = () => {
-  //   const indexDateNow = utils.getMonIndex(
-  //     utils.indexOfDate(nowDate, YEAR_DAYS),
-  //     YEAR_DAYS,
-  //   );
-  //   const newWeek = YEAR_DAYS.slice(
-  //     utils.getMonIndex(indexDateNow + 7, YEAR_DAYS),
-  //     utils.getMonIndex(indexDateNow + 7, YEAR_DAYS) + 7,
-  //   );
-  //   setWeek(newWeek);
-  //   setNowDate(newWeek[0]);
-  // };
-
   const onPreMonth = () => {
     let i = 0;
-    for (i; i < weeks.length; i++) {
-      if (weeks[i][0].getMonth() === nowDate.getMonth() - 1) break;
+    const preDay = new Date(
+      nowDate.getFullYear(),
+      nowDate.getMonth(),
+      nowDate.getDate() - 100,
+    );
+    if (preDay.getTime() < weeks[0][0].getTime()) {
+      if (preDay.getFullYear() < years[0].getFullYear()) {
+        utils.addYearTo(years[0].getFullYear() - 1, years);
+      }
+      const index = utils.indexOfDate(weeks[0][0], years);
+      const newWeeks = [];
+      for (i = 6; i > 0; i--) {
+        newWeeks.push(years.slice(index - i * 7, index - i * 7 + 7));
+      }
+      for (i = newWeeks.length - 1; i >= 0; i--) {
+        weeks.unshift(newWeeks[i]);
+      }
     }
-    if (i < weeks.length) {
-      const newWeek = weeks[i];
-      setNowDate(newWeek[0]);
-      setWeek(newWeek);
-      refWeekScroll.current.scrollTo({
-        x: i * (utils.width - utils.HOUR_TITLE_WIDTH),
-        y: 0,
-        animated: true,
-      });
+    const preMonthDate = new Date(
+      nowDate.getFullYear(),
+      nowDate.getMonth() - 1,
+    );
+
+    for (i = 0; i < weeks.length; i++) {
+      if (
+        weeks[i][0].getMonth() === preMonthDate.getMonth() &&
+        weeks[i][0].getFullYear() === preMonthDate.getFullYear()
+      )
+        break;
     }
+
+    const newWeek = weeks[i];
+    setNowDate(newWeek[0]);
+    setWeek(newWeek);
+    refWeekScroll.current.scrollTo({
+      x: i * (utils.width - utils.HOUR_TITLE_WIDTH),
+      y: 0,
+      animated: true,
+    });
   };
 
   const onNextMonth = () => {
     let i = 0;
-    for (i; i < weeks.length; i++) {
-      if (weeks[i][0].getMonth() === nowDate.getMonth() + 1) break;
+    const nextDay = new Date(
+      nowDate.getFullYear(),
+      nowDate.getMonth(),
+      nowDate.getDate() + 62,
+    );
+    if (nextDay.getTime() > weeks[weeks.length - 1][0].getTime()) {
+      if (nextDay.getFullYear() > nowDate.getFullYear()) {
+        utils.addNextYearTo(nowDate.getFullYear() + 1, years);
+      }
+      const index = utils.indexOfDate(weeks[weeks.length - 1][0], years);
+
+      for (i = 1; i <= 6; i++) {
+        weeks.push(years.slice(index + i * 7, index + i * 7 + 7));
+      }
     }
-    if (i < weeks.length) {
-      const newWeek = weeks[i];
-      setNowDate(newWeek[0]);
-      setWeek(newWeek);
-      refWeekScroll.current.scrollTo({
-        x: i * (utils.width - utils.HOUR_TITLE_WIDTH),
-        y: 0,
-        animated: true,
-      });
+    const nextMonthDate = new Date(
+      nowDate.getFullYear(),
+      nowDate.getMonth() + 1,
+    );
+
+    for (i = 0; i < weeks.length; i++) {
+      if (
+        weeks[i][0].getMonth() === nextMonthDate.getMonth() &&
+        weeks[i][0].getFullYear() === nextMonthDate.getFullYear()
+      )
+        break;
     }
 
-    // const index = utils.indexOfDate(
-    //   new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 1),
-    //   years,
-    // );
-    // const monIndex = utils.getAfterMonIndex(index, years);
-    // const newWeek = years.slice(monIndex, monIndex + 7);
-    // setNowDate(newWeek[0]);
-    // setWeek(newWeek);
+    const newWeek = weeks[i];
+    setNowDate(newWeek[0]);
+    setWeek(newWeek);
+    refWeekScroll.current.scrollTo({
+      x: i * (utils.width - utils.HOUR_TITLE_WIDTH),
+      y: 0,
+      animated: true,
+    });
   };
 
   const onScrollWeek = evt => {
-    console.log('end');
     const weekWidth = utils.width - utils.HOUR_TITLE_WIDTH;
     const weekIndex = evt.nativeEvent.contentOffset.x / weekWidth;
     if (weeks[weekIndex][0].getTime() === week[0].getTime()) {
@@ -283,20 +283,8 @@ const Calendar = () => {
 
     setNowDate(weeks[weekIndex][0]);
     setWeek(weeks[weekIndex]);
-
-    // if (weekIndex === 0) {
-    //   const monIndex = utils.indexOfDate(week[0], years);
-    //   const newWeek = years.slice(monIndex - 7, monIndex);
-    //   weeks.unshift(newWeek);
-    //   // setWeeks(newWeeks);
-    //   console.log('weeks: ', weeks);
-    // } else if (weekIndex >= weeks.length - 1) {
-    //   const monIndex = utils.indexOfDate(week[0], years);
-    //   const newWeek = years.slice(monIndex + 7, monIndex + 14);
-    //   weeks.push(newWeek);
-    //   console.log('weeks: ', weeks);
-    // }
   };
+
   /************************************************************************** */
   /************************************************************************** */
   /**********       RENDER        ******************************************* */
@@ -390,59 +378,6 @@ const Calendar = () => {
     });
   };
 
-  // const renderEvents = events => {
-  //   utils.convertEvents(events);
-  //   const eventsView = events.map(event => {
-  //     const start = utils.getPosition(event.start, week, dateWidth);
-  //     const end = utils.getPosition(event.end, week, dateWidth);
-  //     return (
-  //       <TouchableOpacity
-  //         key={++id}
-  //         onPress={() => {
-  //           alert(event.describe);
-  //         }}
-  //         style={[
-  //           styles.event,
-  //           {
-  //             backgroundColor: event.color,
-  //             top: start.y,
-  //             left: start.x + ((event.position - 1) * dateWidth) / event.flex,
-  //             width: dateWidth / event.flex,
-  //             height: end.y - start.y,
-  //           },
-  //         ]}>
-  //         <Text style={styles.txtEvent}>{event.describe}</Text>
-  //       </TouchableOpacity>
-  //     );
-  //   });
-  //   return eventsView;
-  // };
-
-  // const renderTable = events => {
-  //   return (
-  //     <View
-  //       style={styles.ctTable}
-  //       onStartShouldSetResponder={evt => true}
-  //       onMoveShouldSetResponder={evt => true}
-  //       onResponderMove={onMove}
-  //       onResponderRelease={onRelease}>
-  //       <TouchableOpacity style={styles.touch} onLongPress={onLongPress} />
-  //       <View
-  //         style={[
-  //           styles.createEvent,
-  //           {
-  //             height: createEventHeight,
-  //             left: dateSelectedIndex * dateWidth,
-  //             top: start ? start.y : 0,
-  //             width: dateWidth,
-  //           },
-  //         ]}
-  //       />
-  //       {renderEvents(events)}
-  //     </View>
-  //   );
-  // };
-
   const renderNewEvents = day => {
     const dateEvents = utils.getDateEvents(day, hourEvents);
     utils.convertDateEvents(dateEvents);
@@ -504,7 +439,6 @@ const Calendar = () => {
                   left: 0,
                   top: start ? start.y : 0,
                   width: '100%',
-                  // width: (utils.width - utils.HOUR_TITLE_WIDTH) / 7,
                 },
               ]}
             />
@@ -560,7 +494,6 @@ const Calendar = () => {
         <View style={styles.calendar}>
           {renderHour()}
           {renderNewTable()}
-          {/* {renderTable(hourEvents)} */}
         </View>
       </ScrollView>
     );
@@ -607,18 +540,6 @@ const Calendar = () => {
       {renderMoveMonth()}
       {renderWeek()}
       <View style={{}}>{renderCalendar()}</View>
-      {/* <TouchableOpacity onPress={onPreWeek} style={styles.touchImgLeft}>
-        <Image
-          style={styles.imgLeft}
-          source={require('./src/images/left_arrow.png')}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onNextWeek} style={styles.touchImgRight}>
-        <Image
-          style={styles.imgRight}
-          source={require('./src/images/right_arrow.png')}
-        />
-      </TouchableOpacity> */}
       <TouchableOpacity onPress={onAddEvent} style={styles.touchImgAddEvent}>
         <Image
           style={styles.imgAddEvent}
