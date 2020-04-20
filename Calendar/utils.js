@@ -210,7 +210,6 @@ const convertEvents = events => {
 const convertHeaderEvents = events => {
   if (events.length <= 0) return 0;
   events.sort(compareHeaderEvent);
-  console.log('events: ', events);
   let maxPosition = 1;
   for (let i = 0; i < events.length - 1; i++) {
     const maxEnd = events[i].end.getMonth() * 31 + events[i].end.getDate();
@@ -280,7 +279,12 @@ const getDateEvents = (date, events) => {
   const result = [];
   for (let i = 0; i < events.length; i++) {
     if (events[i].start.getDate() > date.getDate()) break;
-    if (events[i].start.getDate() === date.getDate()) result.push(events[i]);
+    const eventDate = new Date(
+      events[i].start.getFullYear(),
+      events[i].start.getMonth(),
+      events[i].start.getDate(),
+    );
+    if (eventDate.getTime() === date.getTime()) result.push(events[i]);
   }
   return result;
 };
@@ -348,8 +352,17 @@ const getWeeks = (currentDate, dates, numWeeks) => {
   for (let i = -Math.floor(numWeeks / 2); i < Math.round(numWeeks / 2); i++) {
     result.push(dates.slice(monIndex + i * 7, monIndex + i * 7 + 7));
   }
-  console.log('result: ', result);
   return result;
+};
+
+const getPreWeek = (currentDate, dates) => {
+  const index = indexOfDate(currentDate, dates);
+  return dates.slice(index - 7, index);
+};
+
+const getNextWeek = (currentDate, dates) => {
+  const index = indexOfDate(currentDate, dates);
+  return dates.slice(index + 7, index + 14);
 };
 
 export default {
@@ -382,4 +395,6 @@ export default {
   getDayY,
   getEventPosition,
   getWeeks,
+  getPreWeek,
+  getNextWeek,
 };
